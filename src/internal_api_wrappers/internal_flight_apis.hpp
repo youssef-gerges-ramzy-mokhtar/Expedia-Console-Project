@@ -24,33 +24,13 @@ public:
 		origin(origin), destination(destination), price(price) {}
 
 	// Getters
-	string getAirlineName() const {
-		return airlineName;
-	}
-
-	string getFlightNumber() const {
-        return flightNumber;
-    }
-
-    string getDepartureDateTime() const {
-        return departureDateTime;
-    }
-
-    string getArrivalDateTime() const {
-        return arrivalDateTime;
-    }
-
-    string getOrigin() const {
-        return origin;
-    }
-
-    string getDestination() const {
-        return destination;
-    }
-
-    double getPrice() const {
-        return price;
-    }
+	string getAirlineName() const { return airlineName; }
+	string getFlightNumber() const { return flightNumber; }
+    string getDepartureDateTime() const { return departureDateTime; }
+    string getArrivalDateTime() const { return arrivalDateTime; }
+    string getOrigin() const { return origin; }
+    string getDestination() const { return destination; }
+    double getPrice() const { return price; }
 };
 
 class FlightRequest {
@@ -73,33 +53,13 @@ public:
           adults(adults), infants(infants), children(children) {}
 
     // Getters
-    string getDepartureDateTime() const {
-        return departureDateTime;
-    }
-
-    string getArrivalDateTime() const {
-        return arrivalDateTime;
-    }
-
-    string getOrigin() const {
-        return origin;
-    }
-
-    string getDestination() const {
-        return destination;
-    }
-
-    int getAdults() const {
-        return adults;
-    }
-
-    int getInfants() const {
-        return infants;
-    }
-
-    int getChildren() const {
-        return children;
-    }
+    string getDepartureDateTime() const { return departureDateTime; }
+    string getArrivalDateTime() const { return arrivalDateTime; }
+    string getOrigin() const { return origin; }
+    string getDestination() const { return destination; }
+    int getAdults() const { return adults; }
+    int getInfants() const { return infants; }
+    int getChildren() const { return children; }
 };
 
 class IFlightAPI {
@@ -109,7 +69,7 @@ public:
 	virtual bool cancelReservation(FlightInfo flightInfo, FlightRequest FlightRequest) = 0;
 }; 
 
-// Concrete Internal Flight Wrappers
+// Concrete Internal Flight API Wrappers
 class TurkishFlightAPI: IFlightAPI {
 private:
 	TurkishAirlinesOnlineAPI turkishAPI;

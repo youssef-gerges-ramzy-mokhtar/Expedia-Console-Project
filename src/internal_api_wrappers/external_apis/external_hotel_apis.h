@@ -8,6 +8,8 @@
 #ifndef EXPEDIA_HOTELS_API_H_
 #define EXPEDIA_HOTELS_API_H_
 
+using namespace std;
+
 class HiltonRoom {
 public:
 	string room_type;
@@ -17,7 +19,7 @@ public:
 	string date_to;
 };
 
-class HiltonHotelAPI {
+class HiltonHotelOnlineAPI {
 public:
 	static vector<HiltonRoom> SearchRooms(string country, string city, string from_date, string to_date, int adults, int children, int needed_rooms) {
 		vector<HiltonRoom> rooms;
@@ -39,7 +41,7 @@ public:
 	string date_to;
 };
 
-class MarriottHotelAPI {
+class MarriottHotelOnlineAPI {
 public:
 	static vector<MarriottFoundRoom> FindRooms(string from_date, string to_date, string country, string city, int needed_rooms, int adults, int children) {
 		vector<MarriottFoundRoom> rooms;
