@@ -1,8 +1,8 @@
 #include <string>
 #include <vector>
+using namespace std;
 
 #include "external_apis/external_flight_apis.h"
-using namespace std;
 
 class FlightInfo {
 private:
