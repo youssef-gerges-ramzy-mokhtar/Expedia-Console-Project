@@ -1,5 +1,7 @@
 #include <string>
 #include <vector>
+
+#include "external_apis/external_flight_apis.h"
 using namespace std;
 
 class FlightInfo {
@@ -102,38 +104,83 @@ public:
 
 class IFlightAPI {
 public:
-	virtual vector<FlightInfo> search(FlightRequest flightRequest) const = 0;
+	virtual vector<FlightInfo> search(FlightRequest flightRequest) = 0;
 	virtual bool reserve(FlightInfo flightInfo, FlightRequest FlightRequest) = 0;
 	virtual bool cancelReservation(FlightInfo flightInfo, FlightRequest FlightRequest) = 0;
 }; 
 
 // Concrete Internal Flight Wrappers
 class TurkishFlightAPI: IFlightAPI {
-public:
-	virtual vector<FlightInfo> search(FlightRequest flightRequest) const {
-		return {};// dummy
+private:
+	TurkishAirlinesOnlineAPI turkishAPI;
+
+	TurkishFlight getTurkishFlightObj(const FlightInfo &flightInfo) const {
+		TurkishFlight turkishFlight = {flightInfo.getPrice(), flightInfo.getDepartureDateTime(), flightInfo.getArrivalDateTime()};
+		return turkishFlight;
 	}
-	
+
+public:
+	virtual vector<FlightInfo> search(FlightRequest flightRequest) {
+		// set info for external api
+		turkishAPI.SetFromToInfo(
+			flightRequest.getDepartureDateTime(),
+			flightRequest.getOrigin(),
+			flightRequest.getArrivalDateTime(),
+			flightRequest.getDestination());
+
+		turkishAPI.SetPassengersInfo(flightRequest.getInfants(), flightRequest.getChildren(), flightRequest.getAdults());
+
+		// get available flights
+		vector<TurkishFlight> availableFlightsExternal = turkishAPI.GetAvailableFlights();
+
+		// Convert all TurkishFlight objects to FlightInfo objects
+		vector<FlightInfo> availableFlightsInternal;
+		for (auto flight: availableFlightsExternal)
+			availableFlightsInternal.push_back({"turkish-airline", "n/a", flight.datetime_from, flight.datetime_to, flightRequest.getOrigin(), flightRequest.getDestination(), flight.cost});
+
+		return availableFlightsInternal;
+	}
+
 	virtual bool reserve(FlightInfo flightInfo, FlightRequest FlightRequest) {
-		return false;
+		return TurkishAirlinesOnlineAPI::ReserveFlight({}, getTurkishFlightObj(flightInfo));
 	}
 
 	virtual bool cancelReservation(FlightInfo flightInfo, FlightRequest FlightRequest) {
-		return false;
+		return TurkishAirlinesOnlineAPI::CancelReserveFlight({}, getTurkishFlightObj(flightInfo));
 	}
 };
 
 class AirCanadaFlightAPI: IFlightAPI {
+private:
+	AirCanadaFlight getAirCanadaFlightObj(const FlightInfo &flightInfo) const {
+		AirCanadaFlight airCanadaFlight = {flightInfo.getPrice(), flightInfo.getDepartureDateTime(), flightInfo.getArrivalDateTime()};
+		return airCanadaFlight;
+	}
+
 public:
 	virtual vector<FlightInfo> search(FlightRequest flightRequest) const {
-		return {};// dummy
+		vector<AirCanadaFlight> availableFlightsExternal = AirCanadaOnlineAPI::GetFlights(
+			flightRequest.getOrigin(), 
+			flightRequest.getDepartureDateTime(), 
+			flightRequest.getDestination(), 
+			flightRequest.getArrivalDateTime(), 
+			flightRequest.getAdults(), 
+			flightRequest.getChildren() + flightRequest.getInfants()
+		);
+
+		// Convert all AirCanadaFlight objects to FlightInfo objects
+		vector<FlightInfo> availableFlightsInternal;
+		for (auto flight: availableFlightsExternal)
+			availableFlightsInternal.push_back({"air-canada-airline", "n/a", flight.date_time_from, flight.date_time_to, flightRequest.getOrigin(), flightRequest.getDestination(), flight.price});
+
+		return availableFlightsInternal;
 	}
 	
 	virtual bool reserve(FlightInfo flightInfo, FlightRequest FlightRequest) {
-		return false;
+		return AirCanadaOnlineAPI::ReserveFlight(getAirCanadaFlightObj(flightInfo), {});
 	}
 
 	virtual bool cancelReservation(FlightInfo flightInfo, FlightRequest FlightRequest) {
-		return false;
+		return AirCanadaOnlineAPI::CancelReserveFlight(getAirCanadaFlightObj(flightInfo), {});
 	}
 };
