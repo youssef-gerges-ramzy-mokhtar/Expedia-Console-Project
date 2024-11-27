@@ -4,6 +4,7 @@
 using namespace std;
 
 #include "external_apis/external_flight_apis.h"
+#include "api_factory.hpp"
 
 class FlightInfo {
 private:
@@ -157,19 +158,15 @@ public:
 
 
 // Factory
-class FlightAPIFactory {
+class FlightAPIFactory: public APIFactory<IFlightAPI> {
 private:
-	vector<IFlightAPI*> availableFlightAPI;
-	unordered_map<string, IFlightAPI*> availableFlightAPIMap;
-
 	// this is the best which I have could done it is not the best way because we need to modify the init() method each time a new implementation of the IFlightAPI interface is created. The issue is that C++ doesn't have mechanisms like Java Reflection which would have made this much more dynamic
-	// another approach was to make this class a singelton and make every new IHoteAPI implementation register itself with the factory but that would be fine if we only have 1 type of factory but if we have different type of factories then that will be a bit challenging
+	// another approach was to make this class a singelton and make every new IFlightAPI implementation register itself with the factory but that would be fine if we only have 1 type of factory but if we have different type of factories then that will be a bit challenging
 	void init() {
-		availableFlightAPI.push_back(new TurkishFlightAPI());
-		availableFlightAPI.push_back(new AirCanadaFlightAPI());
-
-		for (auto flightAPI: availableFlightAPI)
-			availableFlightAPIMap[flightAPI->getAirlineName()] = flightAPI;
+		IFlightAPI* turkish = new TurkishFlightAPI();
+		IFlightAPI* airCanada = new AirCanadaFlightAPI();
+		addAPI(turkish->getAirlineName(), turkish);
+		addAPI(airCanada->getAirlineName(), airCanada);
 	}
 
 public:
@@ -177,21 +174,7 @@ public:
 		init();
 	}
 
-	// null is returned if flightName is invalid
-	IFlightAPI* createFlightAPI(const string &flightName) {
-		return availableFlightAPIMap[flightName];
-	}
-
 	IFlightAPI* createFlightAPI(const FlightInfo &flightInfo) {
-		return createFlightAPI(flightInfo.getAirlineName());
-	}
-
-	vector<IFlightAPI*> getAllFlightAPI() const {
-		return availableFlightAPI;
-	}
-
-	~FlightAPIFactory() {
-		for (auto flightAPI: availableFlightAPI)
-			delete flightAPI;
+		return createAPI(flightInfo.getAirlineName());
 	}
 };

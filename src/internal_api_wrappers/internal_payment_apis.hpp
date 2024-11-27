@@ -5,6 +5,7 @@
 using namespace std;
 
 #include "external_apis/external_payments_api.h"
+#include "api_factory.hpp"
 
 class PaymentInfo {
 private:
@@ -93,38 +94,22 @@ public:
 };
 
 // Factory
-class PaymentAPIFactory {
+class PaymentAPIFactory: public APIFactory<IPaymentAPI> {
 private:
-	vector<IPaymentAPI*> availablePaymentAPI;
-	unordered_map<string, IPaymentAPI*> availablePaymentAPIMap;
-
 	// this is the best which I have could done it is not the best way because we need to modify the init() method each time a new implementation of the IPaymentAPI interface is created. The issue is that C++ doesn't have mechanisms like Java Reflection which would have made this much more dynamic
 	// another approach was to make this class a singelton and make every new IPaymentAPI implementation register itself with the factory but that would be fine if we only have 1 type of factory but if we have different type of factories then that will be a bit challenging
 	void init() {
-		availablePaymentAPI.push_back(new PayPaylAPI());
-		availablePaymentAPI.push_back(new StripeAPI());
-		availablePaymentAPI.push_back(new SquareAPI());
+		IPaymentAPI* paypal = new PayPaylAPI();
+		IPaymentAPI* stripe = new StripeAPI();
+		IPaymentAPI* square =new SquareAPI();
 
-		for (auto paymentAPI: availablePaymentAPI)
-			availablePaymentAPIMap[paymentAPI->getPaymentProviderName()] = paymentAPI;
+		addAPI(paypal->getPaymentProviderName(), paypal);
+		addAPI(stripe->getPaymentProviderName(), stripe);
+		addAPI(square->getPaymentProviderName(), square);
 	}
 
 public:
 	PaymentAPIFactory() {
 		init();
-	}
-
-	// null is returned if paymentProviderName is invalid
-	IPaymentAPI* createPaymentAPI(const string &paymentProviderName) {
-		return availablePaymentAPIMap[paymentProviderName];
-	}
-
-	vector<IPaymentAPI*> getAllPaymentAPI() const {
-		return availablePaymentAPI;
-	}
-
-	~PaymentAPIFactory() {
-		for (auto paymentAPI: availablePaymentAPI)
-			delete paymentAPI;
 	}
 };

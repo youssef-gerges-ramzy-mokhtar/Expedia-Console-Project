@@ -4,6 +4,7 @@
 using namespace std;
 
 #include "external_apis/external_hotel_apis.h"
+#include "api_factory.hpp"
 
 class HotelRoomInfo {
 private:
@@ -144,19 +145,15 @@ public:
 };
 
 // Factory
-class HotelAPIFactory {
+class HotelAPIFactory: public APIFactory<IHotelAPI> {
 private:
-	vector<IHotelAPI*> availableHotelAPI;
-	unordered_map<string, IHotelAPI*> availableHotelAPIMap;
-
 	// this is the best which I have could done it is not the best way because we need to modify the init() method each time a new implementation of the IHotelAPI interface is created. The issue is that C++ doesn't have mechanisms like Java Reflection which would have made this much more dynamic
 	// another approach was to make this class a singelton and make every new IHoteAPI implementation register itself with the factory but that would be fine if we only have 1 type of factory but if we have different type of factories then that will be a bit challenging
 	void init() {
-		availableHotelAPI.push_back(new HiltonHotelAPI());
-		availableHotelAPI.push_back(new MarriottHotelAPI());
-
-		for (auto hotelAPI: availableHotelAPI)
-			availableHotelAPIMap[hotelAPI->getHotelName()] = hotelAPI;
+		IHotelAPI* hilton = new HiltonHotelAPI();
+		IHotelAPI* marriott = new MarriottHotelAPI();
+		addAPI(hilton->getHotelName(), hilton);
+		addAPI(marriott->getHotelName(), marriott);
 	}
 
 public:
@@ -164,21 +161,7 @@ public:
 		init();
 	}
 
-	// null is returned if hotelName is invalid
-	IHotelAPI* createHotelAPI(const string &hotelName) {
-		return availableHotelAPIMap[hotelName];
-	}
-
 	IHotelAPI* createHotelAPI(const HotelRoomInfo &hotelInfo) {
-		return createHotelAPI(hotelInfo.getHotelName());
-	}
-
-	vector<IHotelAPI*> getAllHotelAPI() const {
-		return availableHotelAPI;
-	}
-
-	~HotelAPIFactory() {
-		for (auto hotelAPI: availableHotelAPI)
-			delete hotelAPI;
+		return createAPI(hotelInfo.getHotelName());
 	}
 };
