@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <unordered_map>
 using namespace std;
 
 #include "external_apis/external_hotel_apis.h"
@@ -70,10 +71,11 @@ public:
 	virtual vector<HotelRoomInfo> search(HotelRequest hotelRequest) = 0;
 	virtual bool reserve(HotelRoomInfo hotelRoomInfo, HotelRequest hotelRequest) = 0;
 	virtual bool cancelReservation(HotelRoomInfo hotelRoomInfo, HotelRequest hotelRequest) = 0;
+	virtual string getHotelName() = 0;
 };
 
 // Concrete Internal Hotel API Wrappers
-class HiltonHotelAPI: IHotelAPI {
+class HiltonHotelAPI: public IHotelAPI {
 public:
 	virtual vector<HotelRoomInfo> search(HotelRequest hotelRequest) {
 		vector<HiltonRoom> availableRoomsExternal = HiltonHotelOnlineAPI::SearchRooms(
@@ -89,7 +91,7 @@ public:
 		// Convert all HiltonRoom objects to HotelRoomInfo objects
 		vector<HotelRoomInfo> availableRoomsInternal;
 		for (auto room: availableRoomsExternal)
-			availableRoomsInternal.push_back({"hilton", room.date_from, room.date_to, hotelRequest.getCountry(), hotelRequest.getCity(), room.room_type, room.available, room.price_per_night});
+			availableRoomsInternal.push_back({getHotelName(), room.date_from, room.date_to, hotelRequest.getCountry(), hotelRequest.getCity(), room.room_type, room.available, room.price_per_night});
 
 		return availableRoomsInternal;
 	}
@@ -101,9 +103,13 @@ public:
 	virtual bool cancelReservation(HotelRoomInfo hotelRoomInfo, HotelRequest hotelRequest) {
 		return true; // dummy as the external api doesn't have reservation functionality yet
 	}
+
+	virtual string getHotelName() {
+		return "hilton";
+	}
 };
 
-class MarriottHotelAPI: IHotelAPI {
+class MarriottHotelAPI: public IHotelAPI {
 public:
 	virtual vector<HotelRoomInfo> search(HotelRequest hotelRequest) {
 		vector<MarriottFoundRoom> availableRoomsExternal = MarriottHotelOnlineAPI::FindRooms(
@@ -119,7 +125,7 @@ public:
 		// Convert all MarriottFoundRoom objects to HotelRoomInfo objects
 		vector<HotelRoomInfo> availableRoomsInternal;
 		for (auto room: availableRoomsExternal)
-			availableRoomsInternal.push_back({"marriott", room.date_from, room.date_to, hotelRequest.getCountry(), hotelRequest.getCity(), room.room_type, room.available, room.price_per_night});
+			availableRoomsInternal.push_back({getHotelName(), room.date_from, room.date_to, hotelRequest.getCountry(), hotelRequest.getCity(), room.room_type, room.available, room.price_per_night});
 
 		return availableRoomsInternal;
 	}
@@ -130,5 +136,49 @@ public:
 
 	virtual bool cancelReservation(HotelRoomInfo hotelRoomInfo, HotelRequest hotelRequest) {
 		return true; // dummy as the external api doesn't have reservation functionality yet
+	}
+
+	virtual string getHotelName() {
+		return "marriott";
+	}
+};
+
+// Factory
+class HotelAPIFactory {
+private:
+	vector<IHotelAPI*> availableHotelAPI;
+	unordered_map<string, IHotelAPI*> availableHotelAPIMap;
+
+	// this is the best which I have could done it is not the best way because we need to modify the init() method each time a new implementation of the IHotelAPI interface is created. The issue is that C++ doesn't have mechanisms like Java Reflection which would have made this much more dynamic
+	// another approach was to make this class a singelton and make every new IHoteAPI implementation register itself with the factory but that would be fine if we only have 1 type of factory but if we have different type of factories then that will be a bit challenging
+	void init() {
+		availableHotelAPI.push_back(new HiltonHotelAPI());
+		availableHotelAPI.push_back(new MarriottHotelAPI());
+
+		for (auto hotelAPI: availableHotelAPI)
+			availableHotelAPIMap[hotelAPI->getHotelName()] = hotelAPI;
+	}
+
+public:
+	HotelAPIFactory() {
+		init();
+	}
+
+	// null is returned if hotelName is invalid
+	IHotelAPI* createHotelAPI(const string &hotelName) {
+		return availableHotelAPIMap[hotelName];
+	}
+
+	IHotelAPI* createHotelAPI(const HotelRoomInfo &hotelInfo) {
+		return createHotelAPI(hotelInfo.getHotelName());
+	}
+
+	vector<IHotelAPI*> getAllHotelAPI() const {
+		return availableHotelAPI;
+	}
+
+	~HotelAPIFactory() {
+		for (auto hotelAPI: availableHotelAPI)
+			delete hotelAPI;
 	}
 };

@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <unordered_map>
 using namespace std;
 
 #include "external_apis/external_flight_apis.h"
@@ -67,10 +68,11 @@ public:
 	virtual vector<FlightInfo> search(FlightRequest flightRequest) = 0;
 	virtual bool reserve(FlightInfo flightInfo, FlightRequest FlightRequest) = 0;
 	virtual bool cancelReservation(FlightInfo flightInfo, FlightRequest FlightRequest) = 0;
+	virtual string getAirlineName() = 0;
 }; 
 
 // Concrete Internal Flight API Wrappers
-class TurkishFlightAPI: IFlightAPI {
+class TurkishFlightAPI: public IFlightAPI {
 private:
 	TurkishAirlinesOnlineAPI turkishAPI;
 
@@ -96,7 +98,7 @@ public:
 		// Convert all TurkishFlight objects to FlightInfo objects
 		vector<FlightInfo> availableFlightsInternal;
 		for (auto flight: availableFlightsExternal)
-			availableFlightsInternal.push_back({"turkish-airline", "n/a", flight.datetime_from, flight.datetime_to, flightRequest.getOrigin(), flightRequest.getDestination(), flight.cost});
+			availableFlightsInternal.push_back({getAirlineName(), "n/a", flight.datetime_from, flight.datetime_to, flightRequest.getOrigin(), flightRequest.getDestination(), flight.cost});
 
 		return availableFlightsInternal;
 	}
@@ -108,9 +110,13 @@ public:
 	virtual bool cancelReservation(FlightInfo flightInfo, FlightRequest FlightRequest) {
 		return TurkishAirlinesOnlineAPI::CancelReserveFlight({}, getTurkishFlightObj(flightInfo));
 	}
+
+	virtual string getAirlineName() {
+		return "turkish-airline";
+	}
 };
 
-class AirCanadaFlightAPI: IFlightAPI {
+class AirCanadaFlightAPI: public IFlightAPI {
 private:
 	AirCanadaFlight getAirCanadaFlightObj(const FlightInfo &flightInfo) const {
 		AirCanadaFlight airCanadaFlight = {flightInfo.getPrice(), flightInfo.getDepartureDateTime(), flightInfo.getArrivalDateTime()};
@@ -118,7 +124,7 @@ private:
 	}
 
 public:
-	virtual vector<FlightInfo> search(FlightRequest flightRequest) const {
+	virtual vector<FlightInfo> search(FlightRequest flightRequest) {
 		vector<AirCanadaFlight> availableFlightsExternal = AirCanadaOnlineAPI::GetFlights(
 			flightRequest.getOrigin(), 
 			flightRequest.getDepartureDateTime(), 
@@ -131,7 +137,7 @@ public:
 		// Convert all AirCanadaFlight objects to FlightInfo objects
 		vector<FlightInfo> availableFlightsInternal;
 		for (auto flight: availableFlightsExternal)
-			availableFlightsInternal.push_back({"air-canada-airline", "n/a", flight.date_time_from, flight.date_time_to, flightRequest.getOrigin(), flightRequest.getDestination(), flight.price});
+			availableFlightsInternal.push_back({getAirlineName(), "n/a", flight.date_time_from, flight.date_time_to, flightRequest.getOrigin(), flightRequest.getDestination(), flight.price});
 
 		return availableFlightsInternal;
 	}
@@ -142,5 +148,50 @@ public:
 
 	virtual bool cancelReservation(FlightInfo flightInfo, FlightRequest FlightRequest) {
 		return AirCanadaOnlineAPI::CancelReserveFlight(getAirCanadaFlightObj(flightInfo), {});
+	}
+
+	virtual string getAirlineName() {
+		return "air-canada-airline";
+	}
+};
+
+
+// Factory
+class FlightAPIFactory {
+private:
+	vector<IFlightAPI*> availableFlightAPI;
+	unordered_map<string, IFlightAPI*> availableFlightAPIMap;
+
+	// this is the best which I have could done it is not the best way because we need to modify the init() method each time a new implementation of the IFlightAPI interface is created. The issue is that C++ doesn't have mechanisms like Java Reflection which would have made this much more dynamic
+	// another approach was to make this class a singelton and make every new IHoteAPI implementation register itself with the factory but that would be fine if we only have 1 type of factory but if we have different type of factories then that will be a bit challenging
+	void init() {
+		availableFlightAPI.push_back(new TurkishFlightAPI());
+		availableFlightAPI.push_back(new AirCanadaFlightAPI());
+
+		for (auto flightAPI: availableFlightAPI)
+			availableFlightAPIMap[flightAPI->getAirlineName()] = flightAPI;
+	}
+
+public:
+	FlightAPIFactory() {
+		init();
+	}
+
+	// null is returned if flightName is invalid
+	IFlightAPI* createFlightAPI(const string &flightName) {
+		return availableFlightAPIMap[flightName];
+	}
+
+	IFlightAPI* createFlightAPI(const FlightInfo &flightInfo) {
+		return createFlightAPI(flightInfo.getAirlineName());
+	}
+
+	vector<IFlightAPI*> getAllFlightAPI() const {
+		return availableFlightAPI;
+	}
+
+	~FlightAPIFactory() {
+		for (auto flightAPI: availableFlightAPI)
+			delete flightAPI;
 	}
 };
