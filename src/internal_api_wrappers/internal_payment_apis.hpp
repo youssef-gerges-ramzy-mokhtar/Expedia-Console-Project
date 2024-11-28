@@ -7,6 +7,9 @@ using namespace std;
 #include "external_apis/external_payments_api.h"
 #include "api_factory.hpp"
 
+#ifndef INTERNAL_PAYMENT_APIS_HPP_
+#define INTERNAL_PAYMENT_APIS_HPP_
+
 class PaymentInfo {
 private:
 	string name;
@@ -113,3 +116,5 @@ public:
 		init();
 	}
 };
+
+#endif

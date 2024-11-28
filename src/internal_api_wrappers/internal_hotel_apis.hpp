@@ -6,6 +6,9 @@ using namespace std;
 #include "external_apis/external_hotel_apis.h"
 #include "api_factory.hpp"
 
+#ifndef INTERNAL_HOTEL_APIS_HPP_
+#define INTERNAL_HOTEL_APIS_HPP_
+
 class HotelRoomInfo {
 private:
 	string hotelName;
@@ -165,3 +168,5 @@ public:
 		return createAPI(hotelInfo.getHotelName());
 	}
 };
+
+#endif

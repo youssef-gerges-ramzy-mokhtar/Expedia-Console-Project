@@ -6,6 +6,9 @@ using namespace std;
 #include "external_apis/external_flight_apis.h"
 #include "api_factory.hpp"
 
+#ifndef INTERNAL_FLIGHT_APIS_HPP_
+#define INTERNAL_FLIGHT_APIS_HPP_
+
 class FlightInfo {
 private:
 	string airlineName;
@@ -178,3 +181,5 @@ public:
 		return createAPI(flightInfo.getAirlineName());
 	}
 };
+
+#endif

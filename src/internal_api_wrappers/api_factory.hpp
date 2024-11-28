@@ -3,6 +3,9 @@
 #include <unordered_map>
 using namespace std;
 
+#ifndef API_FACTORY_HPP_
+#define API_FACTORY_HPP_
+
 template <typename T>
 class APIFactory {
 private:
@@ -10,7 +13,7 @@ private:
 
 public:
 	void addAPI(string name, T* api) {
-        availableAPIs[name] = api;
+        availableAPIs[name] = api; // this assignment might cause a memory leak
     }
 
     // null is returnd if the API doesn't exist
@@ -30,7 +33,10 @@ public:
     }
 
     virtual ~APIFactory() {
+        cout << "~APIFactory() deleting " << typeid(T).name() << " objects\n";
     	for (auto &entry: availableAPIs)
     		delete entry.second;
     }
 };
+
+#endif
