@@ -11,6 +11,7 @@ public:
 	virtual double totalCost() = 0;
 	virtual bool reserve() = 0;
 	virtual bool cancelReservation() = 0;
+	virtual ~IReservationItem() = 0;
 };
 
 class Itinerary: public IReservationItem {
@@ -63,7 +64,7 @@ public:
 		reservations.push_back(reservationItem);
 	}
 
-	~Itinerary() {
+	virtual ~Itinerary() override {
 		cout << "~Itinerary() deleting Reservation Items\n";
 		for (auto &item: reservations) {
 			delete item;
