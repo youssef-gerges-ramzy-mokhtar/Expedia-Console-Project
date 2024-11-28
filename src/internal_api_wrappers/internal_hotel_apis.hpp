@@ -68,6 +68,12 @@ public:
 	int getAdults() const { return adults; }
 	int getChildren() const { return children; }
 	int getNeededRooms() const { return neededRooms; }
+
+	// there should be logic here to get the numbers of days between the 2 dates but for now we will just use a hard-coded value
+	int getNumberOfNights() {
+		// return toDate - fromDate
+		return 3; // temp val
+	}
 };
 
 class IHotelAPI {
