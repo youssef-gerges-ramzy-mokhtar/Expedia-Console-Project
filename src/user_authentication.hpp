@@ -24,8 +24,8 @@ public:
 	UserInfo(string email, string username, string password, enum UserType user_type) :
 		email(email), username(username), password(password), user_type(user_type) {}
 
-	string getUserName() const {
-		return username;
+	string getUserId() const {
+		return username; // for now the username is assumed to be unique
 	}
 
 	bool passwordMatch(const string &password) const {
@@ -35,27 +35,28 @@ public:
 
 class UserDAO {
 private:
+	// In real world users should be stored in a database or some permanant storage
 	unordered_map<string, UserInfo> users;
 
 public:
 	bool addUser(UserInfo userInfo) {
-		string username = userInfo.getUserName();
-		if (userExist(username))
+		string id = userInfo.getUserId();
+		if (userExist(id))
 			return false;
 
-		users[username] = userInfo;
+		users[id] = userInfo;
 		return true;
 	}
 
-	optional<UserInfo> getUser(const string &username) {
-		if (!userExist(username))
+	optional<UserInfo> getUser(const string &id) {
+		if (!userExist(id))
 			return {};
 
-		return users[username];
+		return users[id];
 	}
 
-	bool userExist(const string &username) const {
-		return users.count(username);
+	bool userExist(const string &id) const {
+		return users.count(id);
 	}
 };
 
