@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <iostream>
 using namespace std;
 
 #ifndef API_FACTORY_HPP_
@@ -34,8 +35,12 @@ public:
 
     virtual ~APIFactory() {
         cout << "~APIFactory() deleting " << typeid(T).name() << " objects\n";
-    	for (auto &entry: availableAPIs)
-    		delete entry.second;
+        for (auto &entry: availableAPIs) {
+            delete entry.second;
+            entry.second = nullptr;
+        }
+
+        availableAPIs.clear();
     }
 };
 
