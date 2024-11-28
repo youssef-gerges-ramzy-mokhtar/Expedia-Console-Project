@@ -70,7 +70,7 @@ public:
 class IFlightAPI {
 public:
 	virtual vector<FlightInfo> search(FlightRequest flightRequest) = 0;
-	virtual bool reserve(FlightInfo flightInfo, FlightRequest FlightRequest) = 0;
+	virtual bool reserve(FlightInfo flightInfo, FlightRequest flightRequest) = 0;
 	virtual bool cancelReservation(FlightInfo flightInfo, FlightRequest FlightRequest) = 0;
 	virtual string getAirlineName() = 0;
 }; 
@@ -167,8 +167,12 @@ private:
 	void init() {
 		IFlightAPI* turkish = new TurkishFlightAPI();
 		IFlightAPI* airCanada = new AirCanadaFlightAPI();
-		addAPI(turkish->getAirlineName(), turkish);
-		addAPI(airCanada->getAirlineName(), airCanada);
+
+		addAPI(turkish->getAirlineName(), []() -> IFlightAPI* {return new TurkishFlightAPI();});
+		addAPI(airCanada->getAirlineName(), []() -> IFlightAPI* {return new AirCanadaFlightAPI();});
+	
+		delete turkish;
+		delete airCanada;
 	}
 
 public:

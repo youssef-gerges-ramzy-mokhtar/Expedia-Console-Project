@@ -106,9 +106,13 @@ private:
 		IPaymentAPI* stripe = new StripeAPI();
 		IPaymentAPI* square =new SquareAPI();
 
-		addAPI(paypal->getPaymentProviderName(), paypal);
-		addAPI(stripe->getPaymentProviderName(), stripe);
-		addAPI(square->getPaymentProviderName(), square);
+		addAPI(paypal->getPaymentProviderName(), []() -> IPaymentAPI* {return new PayPaylAPI();});
+		addAPI(stripe->getPaymentProviderName(), []() -> IPaymentAPI* {return new StripeAPI();});
+		addAPI(square->getPaymentProviderName(), []() -> IPaymentAPI* {return new SquareAPI();});
+
+		delete paypal;
+		delete stripe;
+		delete square;
 	}
 
 public:

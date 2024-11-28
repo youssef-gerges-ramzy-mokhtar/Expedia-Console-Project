@@ -1,7 +1,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include <iostream>
+#include <functional>
 using namespace std;
 
 #ifndef API_FACTORY_HPP_
@@ -10,17 +10,17 @@ using namespace std;
 template <typename T>
 class APIFactory {
 private:
-	unordered_map<string, T*> availableAPIs;
+	unordered_map<string, function<T*()>> availableAPIs;
 
 public:
-	void addAPI(string name, T* api) {
-        availableAPIs[name] = api; // this assignment might cause a memory leak
+	void addAPI(string name, function<T*()> apiConstructor) {
+        availableAPIs[name] = apiConstructor;
     }
 
     // null is returnd if the API doesn't exist
     T* createAPI(const string &name) {
     	if (availableAPIs.count(name))
-    		return availableAPIs[name];
+    		return availableAPIs[name]();
 
     	return nullptr;
     }
@@ -28,19 +28,9 @@ public:
     vector<T*> getAllAPIs() const {
     	vector<T*> apis;
     	for (auto &entry: availableAPIs)
-    		apis.push_back(entry.second);
+    		apis.push_back(entry.second());
 
     	return apis;
-    }
-
-    virtual ~APIFactory() {
-        cout << "~APIFactory() deleting " << typeid(T).name() << " objects\n";
-        for (auto &entry: availableAPIs) {
-            delete entry.second;
-            entry.second = nullptr;
-        }
-
-        availableAPIs.clear();
     }
 };
 

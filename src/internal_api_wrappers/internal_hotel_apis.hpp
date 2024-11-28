@@ -155,8 +155,12 @@ private:
 	void init() {
 		IHotelAPI* hilton = new HiltonHotelAPI();
 		IHotelAPI* marriott = new MarriottHotelAPI();
-		addAPI(hilton->getHotelName(), hilton);
-		addAPI(marriott->getHotelName(), marriott);
+
+		addAPI(hilton->getHotelName(), []() -> IHotelAPI* {return new HiltonHotelAPI();});
+		addAPI(marriott->getHotelName(), []() -> IHotelAPI* {return new MarriottHotelAPI();});
+
+		delete hilton;
+		delete marriott;
 	}
 
 public:
