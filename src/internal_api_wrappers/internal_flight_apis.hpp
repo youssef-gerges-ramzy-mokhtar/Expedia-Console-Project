@@ -86,7 +86,7 @@ private:
 	}
 
 public:
-	virtual vector<FlightInfo> search(FlightRequest flightRequest) {
+	virtual vector<FlightInfo> search(FlightRequest flightRequest) override {
 		// set info for external api
 		turkishAPI.SetFromToInfo(
 			flightRequest.getDepartureDateTime(),
@@ -107,15 +107,15 @@ public:
 		return availableFlightsInternal;
 	}
 
-	virtual bool reserve(FlightInfo flightInfo, FlightRequest FlightRequest) {
+	virtual bool reserve(FlightInfo flightInfo, FlightRequest FlightRequest) override {
 		return TurkishAirlinesOnlineAPI::ReserveFlight({}, getTurkishFlightObj(flightInfo));
 	}
 
-	virtual bool cancelReservation(FlightInfo flightInfo, FlightRequest FlightRequest) {
+	virtual bool cancelReservation(FlightInfo flightInfo, FlightRequest FlightRequest) override {
 		return TurkishAirlinesOnlineAPI::CancelReserveFlight({}, getTurkishFlightObj(flightInfo));
 	}
 
-	virtual string getAirlineName() {
+	virtual string getAirlineName() override {
 		return "turkish-airline";
 	}
 };
@@ -128,7 +128,7 @@ private:
 	}
 
 public:
-	virtual vector<FlightInfo> search(FlightRequest flightRequest) {
+	virtual vector<FlightInfo> search(FlightRequest flightRequest) override {
 		vector<AirCanadaFlight> availableFlightsExternal = AirCanadaOnlineAPI::GetFlights(
 			flightRequest.getOrigin(), 
 			flightRequest.getDepartureDateTime(), 
@@ -146,19 +146,18 @@ public:
 		return availableFlightsInternal;
 	}
 	
-	virtual bool reserve(FlightInfo flightInfo, FlightRequest FlightRequest) {
+	virtual bool reserve(FlightInfo flightInfo, FlightRequest FlightRequest) override {
 		return AirCanadaOnlineAPI::ReserveFlight(getAirCanadaFlightObj(flightInfo), {});
 	}
 
-	virtual bool cancelReservation(FlightInfo flightInfo, FlightRequest FlightRequest) {
+	virtual bool cancelReservation(FlightInfo flightInfo, FlightRequest FlightRequest) override {
 		return AirCanadaOnlineAPI::CancelReserveFlight(getAirCanadaFlightObj(flightInfo), {});
 	}
 
-	virtual string getAirlineName() {
+	virtual string getAirlineName() override {
 		return "air-canada-airline";
 	}
 };
-
 
 // Factory
 class FlightAPIFactory: public APIFactory<IFlightAPI> {

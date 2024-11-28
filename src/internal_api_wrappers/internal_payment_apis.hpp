@@ -49,33 +49,33 @@ private:
 	PayPalOnlinePaymentAPI payPalApi;
 
 public:
-	virtual bool makePayment(PaymentInfo paymentInfo) {
+	virtual bool makePayment(PaymentInfo paymentInfo) override {
 		PayPalCreditCard card = {paymentInfo.getName(), paymentInfo.getAddress(), paymentInfo.getId(), paymentInfo.getExpiryDate(), paymentInfo.getCvv()};
 		payPalApi.SetCardInfo(&card);
 		return payPalApi.MakePayment(paymentInfo.getAmountToWithdraw());
 	}
 
-	virtual string getPaymentProviderName() {
+	virtual string getPaymentProviderName() override {
 		return "paypal";
 	}
 };
 
 class StripeAPI: public IPaymentAPI {
 public:
-	virtual bool makePayment(PaymentInfo paymentInfo) {
+	virtual bool makePayment(PaymentInfo paymentInfo) override {
 		StripeUserInfo userInfo = {paymentInfo.getName(), paymentInfo.getAddress()};
 		StripeCardInfo cardInfo = {paymentInfo.getId(), paymentInfo.getExpiryDate()};
 		return StripePaymentAPI::WithDrawMoney(userInfo, cardInfo, paymentInfo.getAmountToWithdraw());
 	}
 
-	virtual string getPaymentProviderName() {
+	virtual string getPaymentProviderName() override {
 		return "stripe";
 	}
 };
 
 class SquareAPI: public IPaymentAPI {
 public:
-	virtual bool makePayment(PaymentInfo paymentInfo) {
+	virtual bool makePayment(PaymentInfo paymentInfo) override {
 		JSON obj;
 		obj["card_info"] = Object();
 		obj["card_info"]["CCV"] = paymentInfo.getCvv();
@@ -91,7 +91,7 @@ public:
 		return SquarePaymentAPI::WithDrawMoney(jsonQuery);
 	}
 
-	virtual string getPaymentProviderName() {
+	virtual string getPaymentProviderName() override {
 		return "square";
 	}
 };

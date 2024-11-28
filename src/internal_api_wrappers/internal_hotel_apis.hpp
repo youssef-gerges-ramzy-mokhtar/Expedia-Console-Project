@@ -81,7 +81,7 @@ public:
 // Concrete Internal Hotel API Wrappers
 class HiltonHotelAPI: public IHotelAPI {
 public:
-	virtual vector<HotelRoomInfo> search(HotelRequest hotelRequest) {
+	virtual vector<HotelRoomInfo> search(HotelRequest hotelRequest) override {
 		vector<HiltonRoom> availableRoomsExternal = HiltonHotelOnlineAPI::SearchRooms(
 			hotelRequest.getCountry(),
 			hotelRequest.getCity(),
@@ -100,22 +100,22 @@ public:
 		return availableRoomsInternal;
 	}
 
-	virtual bool reserve(HotelRoomInfo hotelRoomInfo, HotelRequest hotelRequest) {
+	virtual bool reserve(HotelRoomInfo hotelRoomInfo, HotelRequest hotelRequest) override {
 		return true; // dummy as the external api doesn't have reservation functionality yet
 	}
 
-	virtual bool cancelReservation(HotelRoomInfo hotelRoomInfo, HotelRequest hotelRequest) {
+	virtual bool cancelReservation(HotelRoomInfo hotelRoomInfo, HotelRequest hotelRequest) override {
 		return true; // dummy as the external api doesn't have reservation functionality yet
 	}
 
-	virtual string getHotelName() {
+	virtual string getHotelName() override {
 		return "hilton";
 	}
 };
 
 class MarriottHotelAPI: public IHotelAPI {
 public:
-	virtual vector<HotelRoomInfo> search(HotelRequest hotelRequest) {
+	virtual vector<HotelRoomInfo> search(HotelRequest hotelRequest) override {
 		vector<MarriottFoundRoom> availableRoomsExternal = MarriottHotelOnlineAPI::FindRooms(
 			hotelRequest.getFromDate(),
 			hotelRequest.getToDate(),
@@ -134,15 +134,15 @@ public:
 		return availableRoomsInternal;
 	}
 
-	virtual bool reserve(HotelRoomInfo hotelRoomInfo, HotelRequest hotelRequest) {
+	virtual bool reserve(HotelRoomInfo hotelRoomInfo, HotelRequest hotelRequest) override {
 		return true; // dummy as the external api doesn't have reservation functionality yet
 	}
 
-	virtual bool cancelReservation(HotelRoomInfo hotelRoomInfo, HotelRequest hotelRequest) {
+	virtual bool cancelReservation(HotelRoomInfo hotelRoomInfo, HotelRequest hotelRequest) override {
 		return true; // dummy as the external api doesn't have reservation functionality yet
 	}
 
-	virtual string getHotelName() {
+	virtual string getHotelName() override {
 		return "marriott";
 	}
 };
