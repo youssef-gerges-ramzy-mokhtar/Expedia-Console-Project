@@ -1,4 +1,5 @@
 #include <string>
+#include <iostream>
 using namespace std;
 
 bool containSpaces(const string &str) {
@@ -8,10 +9,3 @@ bool containSpaces(const string &str) {
 
 	return false;
 }
-
-class Object {
-public:
-	virtual clone() = 0;
-	virtual toString() = 0;
-	virtual ~Object() {}
-};
