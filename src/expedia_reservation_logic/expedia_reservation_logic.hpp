@@ -11,7 +11,7 @@ public:
 	virtual double totalCost() = 0;
 	virtual bool reserve() = 0;
 	virtual bool cancelReservation() = 0;
-	virtual ~IReservationItem() = 0;
+	virtual ~IReservationItem() {}
 };
 
 class Itinerary: public IReservationItem {
@@ -29,21 +29,21 @@ public:
 
 	// if any of the reservation items was not reserved then all reservation items that have been succesfully reserved will be cancelled
 	virtual bool reserve() override {
-		vector<IReservationItem*> successfulReservations;
+		vector<IReservationItem*> reservedItems;
 		for (auto &item: reservations) {
-			bool itemReserved = item->reserve();
-			if (!itemReserved)
+			bool reserved = item->reserve();
+			if (!reserved)
 				break;
 
-			successfulReservations.push_back(item);
+			reservedItems.push_back(item);
 		}
 
 		// all items have been reserved successfully
-		if (successfulReservations.size() == reservations.size())
+		if (reservedItems.size() == reservations.size())
 			return true;
 
 		// cancel the reservation of the booked items
-		for (auto &item: successfulReservations)
+		for (auto &item: reservedItems)
 			item->cancelReservation();
 
 		return false;
