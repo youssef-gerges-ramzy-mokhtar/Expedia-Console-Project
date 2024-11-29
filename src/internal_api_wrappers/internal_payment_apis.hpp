@@ -104,7 +104,7 @@ private:
 	void init() {
 		IPaymentAPI* paypal = new PayPaylAPI();
 		IPaymentAPI* stripe = new StripeAPI();
-		IPaymentAPI* square =new SquareAPI();
+		IPaymentAPI* square = new SquareAPI();
 
 		addAPI(paypal->getPaymentProviderName(), []() -> IPaymentAPI* {return new PayPaylAPI();});
 		addAPI(stripe->getPaymentProviderName(), []() -> IPaymentAPI* {return new StripeAPI();});
@@ -118,6 +118,16 @@ private:
 public:
 	PaymentAPIFactory() {
 		init();
+	}
+};
+
+// This factory is used to return a single Payment API to make all payments
+class ActivePaymentAPIFactory {
+public:
+	// there should be a more complex logic for getting the active payment for example reading the provider name from a config file and returning the API object based on that name
+	IPaymentAPI* getActivePaymentAPI() {
+		PaymentAPIFactory paymentAPIFactory;
+		return paymentAPIFactory.createAPI("stripe");
 	}
 };
 

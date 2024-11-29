@@ -37,6 +37,7 @@ public:
 	string getToDate() const { return toDate; }
 	string getCountry() const { return country; }
 	string getCity() const { return city; }
+	string getRoomType() const { return roomType; }
 	int getAvailableRooms() const { return availableRooms; }
 	double getPricePerNight() const { return pricePerNight; }
 };
