@@ -6,6 +6,7 @@ using namespace std;
 #include "../internal_api_wrappers/internal_payment_apis.hpp"
 #include "../user_authentication.hpp"
 #include "../expedia_reservation_logic/expedia_reservation_logic.hpp"
+#include "user_itineraries_manager.hpp"
 
 #ifndef EXPEDIA_CORE_API_HPP_
 #define EXPEDIA_CORE_API_HPP_
@@ -59,18 +60,42 @@ public:
 };
 
 class ExpediaBookingAPI {
+private:
+	UserItinerariesDAO userItineraries;
+	IPaymentAPI* paymentAPI;
+
 public:
+	ExpediaBookingAPI() {
+		ActivePaymentAPIFactory paymentFactory;
+		paymentAPI = paymentFactory.getActivePaymentAPI();
+	}
+
 	bool book(Itinerary itinerary, PaymentInfo paymentInfo, UserInfo userInfo) {
 		// first try to reserve the itinerary
-		// if reservation not succesfull return false
+		bool reserved = itinerary.reserve();
+		if (!reserved)
+			return false;
 
-		// if reservation succesffully try payment
-		// if payment failed
-			// cancel the itinerary reservation and return flase
-				// what about the cancellation didn't succeed ????
+		// if iteinerary reserved succesffully try to do the payment
+		bool paid = paymentAPI->makePayment(paymentInfo);
+		if (!paid) { // if the payment failed we cancel the reservation and return false
+			itinerary.cancelReservation();
+			return false;
+		}
 
-		// if payment success then register this itinery to the user account and return true
-		return false; // dummy
+		// if payment success then register this itinerary to the user account and return true
+		userItineraries.addItineraryToUser(userInfo.getUserId(), itinerary);
+		return true;
+	}
+
+	vector<Itinerary> getUserBookedItineraries(const UserInfo &userInfo) {
+		return userItineraries.getUserItineraries(userInfo.getUserId());
+	}
+
+	~ExpediaBookingAPI() {
+		if (paymentAPI)
+			delete paymentAPI;
+		paymentAPI = nullptr;
 	}
 };
 
