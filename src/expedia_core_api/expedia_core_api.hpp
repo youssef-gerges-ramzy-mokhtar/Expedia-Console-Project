@@ -35,6 +35,13 @@ public:
 
 		return searchResutls;
 	}
+
+	~ExpediaHotelAPI() {
+		cout << "~ExpediaHotelAPI() deleting Hotel APIs\n";
+		for (auto &hotelAPI: hotelAPIs)
+			delete hotelAPI;
+		hotelAPIs.clear();
+	}
 };
 
 class ExpediaFlightAPI {
@@ -56,6 +63,12 @@ public:
 		}
 
 		return searchResutls;
+	}
+
+	~ExpediaFlightAPI() {
+		for (auto &flightAPI: flightAPIs)
+			delete flightAPI;
+		flightAPIs.clear();
 	}
 };
 
@@ -93,9 +106,10 @@ public:
 	}
 
 	~ExpediaBookingAPI() {
-		if (paymentAPI)
+		if (paymentAPI) {
 			delete paymentAPI;
-		paymentAPI = nullptr;
+			paymentAPI = nullptr;
+		}
 	}
 };
 
