@@ -77,7 +77,7 @@ class SquareAPI: public IPaymentAPI {
 public:
 	virtual bool makePayment(PaymentInfo paymentInfo) override {
 		JSON obj;
-		obj["card_info"] = Object();
+		obj["card_info"] = json::Object();
 		obj["card_info"]["CCV"] = paymentInfo.getCvv();
 		obj["card_info"]["DATE"] = paymentInfo.getExpiryDate();
 		obj["card_info"]["ID"] = paymentInfo.getId();
