@@ -20,6 +20,8 @@ private:
 	vector<IReservationItem*> reservations;
 
 public:
+	Itinerary() {}
+	
 	// copy constructor
 	Itinerary(const Itinerary &other) {
 		for (const auto &reservation: other.getAllReservation())
@@ -81,10 +83,8 @@ public:
 
 	virtual ~Itinerary() override {
 		cout << "~Itinerary() deleting Reservation Items\n";
-		for (auto &item: reservations) {
+		for (auto &item: reservations)
 			delete item;
-			item = nullptr;
-		}
 
 		reservations.clear();
 	}

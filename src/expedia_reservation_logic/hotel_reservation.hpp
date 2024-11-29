@@ -51,6 +51,10 @@ public:
 	virtual bool cancelReservation() override {
 		return reservationHandler.cancelReservation();
 	}
+
+	virtual IReservationItem* clone() const override {
+		return new HotelReservationItem(hotelRoomInfo, hotelRequest);
+	}
 };
 
 #endif
