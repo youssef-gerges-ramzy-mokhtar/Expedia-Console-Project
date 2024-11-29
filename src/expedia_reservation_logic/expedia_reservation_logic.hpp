@@ -11,6 +11,7 @@ public:
 	virtual double totalCost() = 0;
 	virtual bool reserve() = 0;
 	virtual bool cancelReservation() = 0;
+	virtual IReservationItem* clone() const = 0;
 	virtual ~IReservationItem() {}
 };
 
@@ -19,6 +20,12 @@ private:
 	vector<IReservationItem*> reservations;
 
 public:
+	// copy constructor
+	Itinerary(const Itinerary &other) {
+		for (const auto &reservation: other.getAllReservation())
+			addReservationItem(reservation->clone());
+	}
+
 	virtual double totalCost() override {
 		double cost = 0;
 		for (auto &item: reservations)
@@ -60,8 +67,16 @@ public:
 		return allCancelled;
 	}
 
+	virtual IReservationItem* clone() const override {
+		return new Itinerary(*this);
+	}
+
 	void addReservationItem(IReservationItem* reservationItem) {
 		reservations.push_back(reservationItem);
+	}
+
+	const vector<IReservationItem*>& getAllReservation() const {
+		return reservations;
 	}
 
 	virtual ~Itinerary() override {
