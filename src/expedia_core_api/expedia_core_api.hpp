@@ -25,6 +25,10 @@ public:
 		hotelAPIs = hotelAPIFactory.getAllAPIs();
 	}
 
+	// disabling copy constructor and assignment operator as no need to pass the ExpediaHotelAPI by value, and no need to pass it at all because the default constructor makes all ExpediaHotelAPI objects has the same exact data
+	ExpediaHotelAPI(const ExpediaHotelAPI &other) = delete;
+	ExpediaHotelAPI& operator=(const ExpediaHotelAPI &other) = delete;
+
 	vector<HotelRoomInfo> search(const HotelRequest &hotelRequest) {
 		vector<HotelRoomInfo> searchResutls;
 		for (auto &hotelAPI: hotelAPIs) {
@@ -54,6 +58,10 @@ public:
 		flightAPIs = flightAPIFactory.getAllAPIs();
 	}
 
+	// disabling copy constructor and assignment operator as no need to pass the ExpediaFlightAPI by value, and no need to pass it at all because the default constructor makes all ExpediaFlightAPI objects has the same exact data
+	ExpediaFlightAPI(const ExpediaFlightAPI &other) = delete;
+	ExpediaFlightAPI& operator=(const ExpediaFlightAPI &other) = delete;
+
 	vector<FlightInfo> search(const FlightRequest &flightRequest) {
 		vector<FlightInfo> searchResutls;
 		for (auto &flightAPI: flightAPIs) {
@@ -75,14 +83,13 @@ public:
 class ExpediaBookingAPI {
 private:
 	UserItinerariesDAO userItineraries;
-	IPaymentAPI* paymentAPI;
 
-public:
-	ExpediaBookingAPI() {
+	IPaymentAPI* getActivePaymentAPI() {
 		ActivePaymentAPIFactory paymentFactory;
-		paymentAPI = paymentFactory.getActivePaymentAPI();
+		return paymentFactory.getActivePaymentAPI();
 	}
 
+public:
 	bool book(Itinerary itinerary, PaymentInfo paymentInfo, UserInfo userInfo) {
 		// first try to reserve the itinerary
 		bool reserved = itinerary.reserve();
@@ -90,7 +97,10 @@ public:
 			return false;
 
 		// if iteinerary reserved succesffully try to do the payment
+		IPaymentAPI* paymentAPI = getActivePaymentAPI();
 		bool paid = paymentAPI->makePayment(paymentInfo);
+		delete paymentAPI;
+
 		if (!paid) { // if the payment failed we cancel the reservation and return false
 			itinerary.cancelReservation();
 			return false;
@@ -103,13 +113,6 @@ public:
 
 	vector<Itinerary> getUserBookedItineraries(const UserInfo &userInfo) {
 		return userItineraries.getUserItineraries(userInfo.getUserId());
-	}
-
-	~ExpediaBookingAPI() {
-		if (paymentAPI) {
-			delete paymentAPI;
-			paymentAPI = nullptr;
-		}
 	}
 };
 
