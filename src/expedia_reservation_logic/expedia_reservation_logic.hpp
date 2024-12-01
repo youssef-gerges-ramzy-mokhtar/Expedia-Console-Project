@@ -81,6 +81,15 @@ public:
 		return reservations;
 	}
 
+	Itinerary& operator=(const Itinerary &other) {
+		if (this != &other) {
+			for (const auto &reservation: other.getAllReservation())
+				addReservationItem(reservation->clone());
+		}
+
+		return *this;
+	}
+
 	virtual ~Itinerary() override {
 		cout << "~Itinerary() deleting Reservation Items\n";
 		for (auto &item: reservations)
