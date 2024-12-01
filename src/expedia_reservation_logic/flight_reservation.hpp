@@ -6,14 +6,17 @@
 
 class FlightReservationHandler {
 private:
-	IFlightAPI* flightAPI;
 	FlightInfo flightInfo;
 	FlightRequest flightRequest;
+	IFlightAPI* flightAPI;
 
 public:
-	FlightReservationHandler(FlightInfo flightInfo, FlightRequest flightRequest) : flightInfo(flightInfo), flightRequest(flightRequest) {
+	FlightReservationHandler(const FlightInfo &flightInfo, const FlightRequest &flightRequest) : flightInfo(flightInfo), flightRequest(flightRequest) {
 		FlightAPIFactory flightAPIFactory;
 		this->flightAPI = flightAPIFactory.createFlightAPI(flightInfo);
+	}
+
+	FlightReservationHandler(const FlightReservationHandler &other) : FlightReservationHandler(other.flightInfo, other.flightRequest) {
 	}
 
 	bool reserve() {

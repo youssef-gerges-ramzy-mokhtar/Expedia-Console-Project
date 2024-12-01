@@ -6,14 +6,17 @@
 
 class HotelReservationHandler {
 private:
-	IHotelAPI* hotelAPI;
 	HotelRoomInfo hotelRoomInfo;
 	HotelRequest hotelRequest;
+	IHotelAPI* hotelAPI;
 
 public:
-	HotelReservationHandler(HotelRoomInfo hotelRoomInfo, HotelRequest hotelRequest) : hotelRoomInfo(hotelRoomInfo), hotelRequest(hotelRequest) {
+	HotelReservationHandler(const HotelRoomInfo &hotelRoomInfo, const HotelRequest &hotelRequest) : hotelRoomInfo(hotelRoomInfo), hotelRequest(hotelRequest) {
 		HotelAPIFactory hotelAPIFactory;
 		this->hotelAPI = hotelAPIFactory.createHotelAPI(hotelRoomInfo);
+	}
+
+	HotelReservationHandler(const HotelReservationHandler &other) : HotelReservationHandler(other.hotelRoomInfo, other.hotelRequest) {
 	}
 
 	bool reserve() {
