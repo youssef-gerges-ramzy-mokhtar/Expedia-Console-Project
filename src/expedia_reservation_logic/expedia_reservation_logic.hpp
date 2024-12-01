@@ -12,6 +12,7 @@ public:
 	virtual bool reserve() = 0;
 	virtual bool cancelReservation() = 0;
 	virtual IReservationItem* clone() const = 0;
+	virtual string toString() = 0;
 	virtual ~IReservationItem() {}
 };
 
@@ -71,6 +72,19 @@ public:
 
 	virtual IReservationItem* clone() const override {
 		return new Itinerary(*this);
+	}
+
+	virtual string toString() override {
+		ostringstream oss;
+		oss << "************************************\n";
+		oss << "Itinerary of " << reservations.size() << " sub-reservations\n";
+		for (const auto &reservation: reservations)
+			oss << reservation->toString() << "\n";
+
+		oss << "\nTotal Itinerary cost: " << totalCost() << "\n";
+		oss << "************************************\n";
+	
+		return oss.str();
 	}
 
 	void addReservationItem(IReservationItem* reservationItem) {

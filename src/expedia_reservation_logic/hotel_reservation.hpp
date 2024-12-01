@@ -1,3 +1,6 @@
+#include <sstream>
+using namespace std;
+
 #include "../internal_api_wrappers/internal_hotel_apis.hpp"
 #include "expedia_reservation_logic.hpp"
 
@@ -57,6 +60,16 @@ public:
 
 	virtual IReservationItem* clone() const override {
 		return new HotelReservationItem(hotelRoomInfo, hotelRequest);
+	}
+
+	virtual string toString() override {
+		ostringstream oss;
+		oss << "Hotel reservation: " << hotelRoomInfo.getHotelName() << ": " << hotelRoomInfo.getCity() << " @ " << hotelRoomInfo.getCountry() << "\n";
+		oss << "\t" << hotelRequest.getFromDate() << " to " << hotelRequest.getToDate() << " : " << hotelRequest.getNumberOfNights() << "\n";
+		oss << "\tAdults: " << hotelRequest.getAdults() << " Children: " << hotelRequest.getChildren() << + "\n";
+		oss << "\tTotal Cost: " << totalCost() << "\n";
+
+		return oss.str();
 	}
 };
 
