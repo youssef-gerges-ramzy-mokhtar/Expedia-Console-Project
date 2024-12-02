@@ -1,11 +1,12 @@
-#ifndef USER_MNGER_H_
-#define USER_MNGER_H_
-
 #include <string>
 #include <optional>
 #include <unordered_map>
-#include "utils.hpp"
 using namespace std;
+
+#include "../utils.hpp"
+
+#ifndef USER_AUTHENTICATION_API_H_
+#define USER_AUTHENTICATION_API_H_
 
 enum UserType {
 	CUSTOMER,
