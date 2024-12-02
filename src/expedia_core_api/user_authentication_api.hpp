@@ -25,9 +25,12 @@ public:
 	UserInfo(string email, string username, string password, enum UserType user_type) :
 		email(email), username(username), password(password), user_type(user_type) {}
 
+	// Getters
 	string getUserId() const {
 		return username; // for now the username is assumed to be unique
 	}
+	string getEmail() const { return email; }
+	UserType getUserType() const { return user_type; }
 
 	bool passwordMatch(const string &password) const {
 		return this->password == password;
