@@ -89,9 +89,13 @@ public:
 	string authenticationMsg() const {
 		return authentication_msg;
 	}
+
+	optional<UserInfo> getUserInfo() const {
+		return user_info;
+	}
 };
 
-class Authentication {
+class ExpediaAuthenticationAPI {
 private:
 	UserDAO user_data_access_obj;
 
