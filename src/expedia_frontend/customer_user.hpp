@@ -51,7 +51,7 @@ private:
 		}
 
 		int choice;
-		cout << "Enter -1 to cancel or number in range 1 - " << searchResults.size() << ": ";
+		cout << "\nEnter -1 to cancel or number in range 1 - " << searchResults.size() << ": ";
 		cin >> choice;
 
 		if (choice == -1)
@@ -100,7 +100,7 @@ private:
 		}
 
 		int choice;
-		cout << "Enter -1 to cancel or number in range 1 - " << searchResults.size() << ": ";
+		cout << "\nEnter -1 to cancel or number in range 1 - " << searchResults.size() << ": ";
 		cin >> choice;
 
 		if (choice == -1)
@@ -116,6 +116,7 @@ public:
 
 		while (true) {
 			int choice = readMenuOption({"Add Flight", "Add Hotel", "Done", "Cancel"});
+			cout << "\n";
 
 			IReservationItem* item = nullptr;
 			if (choice == 1)
@@ -135,10 +136,85 @@ public:
 	}
 };
 
+class PaymentCardUI {
+private:
+	ExpediaBookingAPI &expediaBookingAPI;
+	UserInfo userInfo;
+
+private:
+	bool userHasPaymentCards() {
+		return expediaBookingAPI.getUserPaymentCards(userInfo).size() > 0;
+	}
+
+	CardInfo getPaymentCardSelectedByUser() {
+		vector<CardInfo> cards = expediaBookingAPI.getUserPaymentCards(userInfo);
+		
+		cout << "Select a payment choice:\n";
+		for (int i = 0; i < cards.size(); i++) {
+			auto &card = cards[i];
+			cout << i+1 << ":" << " Owner: " << card.getName() << " Card number: " << card.getId() << "\n";
+		}
+
+		int choice;
+		cout << "\nEnter number in range 1 - " << cards.size() << ": ";
+		cin >> choice;
+
+		assert(1 <= choice && choice <= cards.size());
+		return cards[choice-1];
+	}
+
+	CardInfo addPaymentCard() {
+		string name;
+		cout << "Enter Name on Card: ";
+		cin >> name;
+
+		string cardNumber;
+		cout << "Enter Debit/Credit card number: ";
+		cin >> cardNumber;
+
+		string expiryDate;
+		cout << "Enter Expiration date (mm/yy): ";
+		cin >> expiryDate;
+
+		int cvv;
+		cout << "Enter Security code (cvv): ";
+		cin >> cvv;
+
+		string address;
+		cout << "Enter Billing Address: ";
+		cin >> address;
+
+		CardInfo cardInfo = {name, address, cardNumber, expiryDate, cvv};
+		expediaBookingAPI.addPaymentCard(userInfo, cardInfo);
+		return cardInfo;
+	}
+
+public:
+	PaymentCardUI(ExpediaBookingAPI &expediaBookingAPI, const UserInfo &userInfo) : 
+		expediaBookingAPI(expediaBookingAPI), userInfo(userInfo) 
+	{}
+
+	CardInfo getPaymentCard() {
+		while (true) {
+			int choice = readMenuOption({"Pick from available cards", "Add new payment card"});
+			cout << "\n";
+
+			if (choice == 1) {
+				if (!userHasPaymentCards())
+					cout << "You don't have any registered payment cards, please add a new payment card\n";
+				else
+					return getPaymentCardSelectedByUser();
+			} else if (choice == 2)
+				return addPaymentCard();
+		}
+	}
+};
+
 class CustomerUserUI: public UserUI {
 private:
 	ExpediaBookingAPI expediaBookingAPI;
 	ItineraryMakerUI itineraryMakerUI;
+	PaymentCardUI paymentCardUI;
 
 private:
 	// still under implementation
@@ -146,6 +222,16 @@ private:
 		Itinerary itinerary = itineraryMakerUI.createItinerary();
 		if (itinerary.getAllReservation().size() == 0)
 			return;
+
+		CardInfo cardInfo = paymentCardUI.getPaymentCard();
+		bool itineraryBooked = expediaBookingAPI.book(itinerary, cardInfo, getUserInfo());
+		if (itineraryBooked) {
+			cout << "Money withdraw successfully\n";
+			cout << "Reservation confirmed\n";
+			cout << "Itinerary reserved\n";
+		} else {
+			cout << "Couldn't Reserve Itinerary\n";
+		}
 	}
 
 	void listUserItineraries() {
@@ -155,7 +241,7 @@ private:
 	}
 
 public:
-	CustomerUserUI(const UserInfo &userInfo) : UserUI(userInfo) {
+	CustomerUserUI(const UserInfo &userInfo) : UserUI(userInfo), paymentCardUI(expediaBookingAPI, userInfo) {
 		if (userInfo.getUserType() != UserType::CUSTOMER)
 			throw invalid_argument("Invalid User Type, expected CUSTOMER user");
 	}
@@ -164,6 +250,8 @@ public:
 		cout << "Hello " << getUserInfo().getUserId() << " | Customer View\n\n";
 		while (true) {
 			int choice = readMenuOption({"View Profile", "Make Itinerary", "List my itineraries", "Logout"});
+			cout << "\n";
+
 			if (choice == 1)
 				viewProfile();
 			else if (choice == 2)
