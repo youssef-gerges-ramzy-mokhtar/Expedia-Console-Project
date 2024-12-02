@@ -23,10 +23,26 @@ public:
 	}
 };
 
+class UserPaymentCardsDAD {
+private:
+	unordered_map<string, vector<CardInfo>> userPaymentCards;
+
+public:
+	void addCard(const string &userID, const CardInfo &cardInfo) {
+		userPaymentCards[userID].push_back(cardInfo);
+	}
+
+	vector<CardInfo> getAllUserCards(const string &userID) {
+		return userPaymentCards[userID];
+	}
+};
+
 class ExpediaBookingAPI {
 private:
 	UserItinerariesDAO userItineraries;
+	UserPaymentCardsDAD userPaymentCards;
 
+private:
 	IPaymentAPI* getActivePaymentAPI() {
 		ActivePaymentAPIFactory paymentFactory;
 		return paymentFactory.getActivePaymentAPI();
@@ -56,6 +72,14 @@ public:
 
 	vector<Itinerary> getUserBookedItineraries(const UserInfo &userInfo) {
 		return userItineraries.getUserItineraries(userInfo.getUserId());
+	}
+
+	void addPaymentCard(const UserInfo &userInfo, CardInfo &paymentCard) {
+		userPaymentCards.addCard(userInfo.getUserId(), paymentCard);
+	}
+
+	vector<CardInfo> getUserPaymentCards(const UserInfo &userInfo) {
+		return userPaymentCards.getAllUserCards(userInfo.getUserId());
 	}
 };
 
