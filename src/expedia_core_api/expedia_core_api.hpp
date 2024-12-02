@@ -90,7 +90,7 @@ private:
 	}
 
 public:
-	bool book(Itinerary itinerary, PaymentInfo paymentInfo, UserInfo userInfo) {
+	bool book(Itinerary itinerary, CardInfo cardInfo, UserInfo userInfo) {
 		// first try to reserve the itinerary
 		bool reserved = itinerary.reserve();
 		if (!reserved)
@@ -98,7 +98,7 @@ public:
 
 		// if iteinerary reserved succesffully try to do the payment
 		IPaymentAPI* paymentAPI = getActivePaymentAPI();
-		bool paid = paymentAPI->makePayment(paymentInfo);
+		bool paid = paymentAPI->makePayment(cardInfo, itinerary.totalCost());
 		delete paymentAPI;
 
 		if (!paid) { // if the payment failed we cancel the reservation and return false

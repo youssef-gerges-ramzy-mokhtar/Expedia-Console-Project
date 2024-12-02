@@ -10,23 +10,21 @@ using namespace std;
 #ifndef INTERNAL_PAYMENT_APIS_HPP_
 #define INTERNAL_PAYMENT_APIS_HPP_
 
-class PaymentInfo {
+class CardInfo {
 private:
 	string name;
 	string address;
 	string id;
 	string expiryDate;
 	int cvv;
-	double amountToWithdraw;
 
 public:
-	PaymentInfo(
+	CardInfo(
 		const string &name, const string &address,
-		const string &id, const string &expiryDate,
-		int cvv, double amountToWithdraw)
+		const string &id, const string &expiryDate, int cvv)
 		: name(name), address(address),
-		id(id), expiryDate(expiryDate),
-		cvv(cvv), amountToWithdraw(amountToWithdraw) {}
+		id(id), expiryDate(expiryDate), cvv(cvv)
+	{}
 
 	// Getters
 	string getName() const { return name; }
@@ -34,12 +32,11 @@ public:
 	string getId() const { return id; }
 	string getExpiryDate() const { return expiryDate; }
 	int getCvv() const { return cvv; }
-	double getAmountToWithdraw() const { return amountToWithdraw; }
 };
 
 class IPaymentAPI {
 public:
-	virtual bool makePayment(PaymentInfo paymentInfo) = 0;
+	virtual bool makePayment(CardInfo cardInfo, double amountToWithdraw) = 0;
 	virtual string getPaymentProviderName() = 0;
 };
 
@@ -49,10 +46,10 @@ private:
 	PayPalOnlinePaymentAPI payPalApi;
 
 public:
-	virtual bool makePayment(PaymentInfo paymentInfo) override {
-		PayPalCreditCard card = {paymentInfo.getName(), paymentInfo.getAddress(), paymentInfo.getId(), paymentInfo.getExpiryDate(), paymentInfo.getCvv()};
+	virtual bool makePayment(CardInfo cardInfo, double amountToWithdraw) override {
+		PayPalCreditCard card = {cardInfo.getName(), cardInfo.getAddress(), cardInfo.getId(), cardInfo.getExpiryDate(), cardInfo.getCvv()};
 		payPalApi.SetCardInfo(&card);
-		return payPalApi.MakePayment(paymentInfo.getAmountToWithdraw());
+		return payPalApi.MakePayment(amountToWithdraw);
 	}
 
 	virtual string getPaymentProviderName() override {
@@ -62,10 +59,10 @@ public:
 
 class StripeAPI: public IPaymentAPI {
 public:
-	virtual bool makePayment(PaymentInfo paymentInfo) override {
-		StripeUserInfo userInfo = {paymentInfo.getName(), paymentInfo.getAddress()};
-		StripeCardInfo cardInfo = {paymentInfo.getId(), paymentInfo.getExpiryDate()};
-		return StripePaymentAPI::WithDrawMoney(userInfo, cardInfo, paymentInfo.getAmountToWithdraw());
+	virtual bool makePayment(CardInfo cardInfo, double amountToWithdraw) override {
+		StripeUserInfo stripeUserInfo = {cardInfo.getName(), cardInfo.getAddress()};
+		StripeCardInfo stripeCardInfo = {cardInfo.getId(), cardInfo.getExpiryDate()};
+		return StripePaymentAPI::WithDrawMoney(stripeUserInfo, stripeCardInfo, amountToWithdraw);
 	}
 
 	virtual string getPaymentProviderName() override {
@@ -75,14 +72,14 @@ public:
 
 class SquareAPI: public IPaymentAPI {
 public:
-	virtual bool makePayment(PaymentInfo paymentInfo) override {
+	virtual bool makePayment(CardInfo cardInfo, double amountToWithdraw) override {
 		JSON obj;
 		obj["card_info"] = json::Object();
-		obj["card_info"]["CCV"] = paymentInfo.getCvv();
-		obj["card_info"]["DATE"] = paymentInfo.getExpiryDate();
-		obj["card_info"]["ID"] = paymentInfo.getId();
-		obj["money"] = paymentInfo.getAmountToWithdraw();
-		obj["user_info"] = Array(paymentInfo.getName(), paymentInfo.getAddress());
+		obj["card_info"]["CCV"] = cardInfo.getCvv();
+		obj["card_info"]["DATE"] = cardInfo.getExpiryDate();
+		obj["card_info"]["ID"] = cardInfo.getId();
+		obj["money"] = amountToWithdraw;
+		obj["user_info"] = Array(cardInfo.getName(), cardInfo.getAddress());
 	
 		ostringstream oss;
 		oss << obj;
