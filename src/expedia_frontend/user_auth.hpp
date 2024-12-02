@@ -56,13 +56,15 @@ private:
 public:
 	UserUI* accessSystem() {
 		while (true) {
-			int choice = readMenuOption({"Login", "Sign Up"});
+			int choice = readMenuOption({"Login", "Sign Up", "Exit"});
 
 			UserUI* user = nullptr;
 			if (choice == 1)
 				user = login();
 			else if (choice == 2)
 				user = signup();
+			else if (choice == 3)
+				return nullptr;
 
 			cout << "\n";
 

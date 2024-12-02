@@ -81,7 +81,7 @@ public:
 		for (const auto &reservation: reservations)
 			oss << reservation->toString() << "\n";
 
-		oss << "\nTotal Itinerary cost: " << totalCost() << "\n";
+		oss << "Total Itinerary cost: " << totalCost() << "\n";
 		oss << "************************************\n";
 	
 		return oss.str();

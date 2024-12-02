@@ -20,7 +20,7 @@ public:
 			userType = "Admin";
 
 		cout << "UserName: " << userInfo.getUserId() << " | " << userType << "\n";
-		cout << "Email: " << userInfo.getEmail() << "\n";
+		cout << "Email: " << userInfo.getEmail() << "\n\n";
 	}
 
 	virtual void runUI() = 0;
