@@ -8,7 +8,7 @@ private:
 	UserInfo userInfo;
 
 public:
-	UserUI(UserInfo userInfo) : userInfo(userInfo) {}
+	UserUI(const UserInfo &userInfo) : userInfo(userInfo) {}
 
 	UserInfo getUserInfo() const {
 		return userInfo;
