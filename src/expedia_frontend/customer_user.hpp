@@ -53,6 +53,7 @@ private:
 		int choice;
 		cout << "\nEnter -1 to cancel or number in range 1 - " << searchResults.size() << ": ";
 		cin >> choice;
+		cout << "\n";
 
 		if (choice == -1)
 			return nullptr;
@@ -102,6 +103,7 @@ private:
 		int choice;
 		cout << "\nEnter -1 to cancel or number in range 1 - " << searchResults.size() << ": ";
 		cin >> choice;
+		cout << "\n";
 
 		if (choice == -1)
 			return nullptr;
@@ -201,7 +203,7 @@ public:
 
 			if (choice == 1) {
 				if (!userHasPaymentCards())
-					cout << "You don't have any registered payment cards, please add a new payment card\n";
+					cout << "You don't have any registered payment cards, please add a new payment card\n\n";
 				else
 					return getPaymentCardSelectedByUser();
 			} else if (choice == 2)
@@ -225,17 +227,26 @@ private:
 
 		CardInfo cardInfo = paymentCardUI.getPaymentCard();
 		bool itineraryBooked = expediaBookingAPI.book(itinerary, cardInfo, getUserInfo());
+		cout << "\n";
+
 		if (itineraryBooked) {
+			cout << "Itinerary reserved\n";
 			cout << "Money withdraw successfully\n";
 			cout << "Reservation confirmed\n";
-			cout << "Itinerary reserved\n";
 		} else {
 			cout << "Couldn't Reserve Itinerary\n";
 		}
+
+		cout << "\n";
 	}
 
 	void listUserItineraries() {
 		vector<Itinerary> itineraries = expediaBookingAPI.getUserBookedItineraries(getUserInfo());
+		if (itineraries.size() == 0) {
+			cout << "You don't have any itineraries\n\n";
+			return;
+		}
+
 		for (auto &itinerary: itineraries)
 			cout << itinerary.toString() << "\n";
 	}
