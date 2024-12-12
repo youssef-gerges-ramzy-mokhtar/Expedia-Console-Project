@@ -20,6 +20,13 @@ class Itinerary: public IReservationItem {
 private:
 	vector<IReservationItem*> reservations;
 
+	// note we should handle a uncancelled reservation handler method in each type of Reservation Item, but for now we keep it simple just for illustration purposes
+	// example flights might require trying to call the cancellation API multiple times for the cancellation to work, while the hotels might require logging the room that failed to be cancelled in a databases and internal employees in expedia calling each hotel separately to cancel the reservation. So each reservation item might have a different cancellation logic
+	void stub_handle_uncancelled_reservation(IReservationItem* reservationItem) {
+		// some logic to handle reservations that wasn't able to be cancelled
+		return;
+	}
+
 public:
 	Itinerary() {}
 	
@@ -63,8 +70,10 @@ public:
 		bool allCancelled = true;
 		for (auto &item: reservations) {
 			bool itemCancelled = item->cancelReservation();
-			if (!itemCancelled);
+			if (!itemCancelled) {
 				allCancelled = false;
+				stub_handle_uncancelled_reservation(item);
+			}
 		}
 
 		return allCancelled;
@@ -105,7 +114,7 @@ public:
 	}
 
 	virtual ~Itinerary() override {
-		cout << "~Itinerary() deleting Reservation Items\n";
+		// cout << "~Itinerary() deleting Reservation Items\n";
 		for (auto &item: reservations)
 			delete item;
 
