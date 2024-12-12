@@ -27,6 +27,13 @@ private:
 		return;
 	}
 
+	void deleteReservationItems() {
+		for (auto &item: reservations)
+			delete item;
+
+		reservations.clear();
+	}
+
 public:
 	Itinerary() {}
 	
@@ -106,6 +113,7 @@ public:
 
 	Itinerary& operator=(const Itinerary &other) {
 		if (this != &other) {
+			deleteReservationItems(); // we need to removed any old reservation items stored in this object
 			for (const auto &reservation: other.getAllReservation())
 				addReservationItem(reservation->clone());
 		}
@@ -115,10 +123,7 @@ public:
 
 	virtual ~Itinerary() override {
 		// cout << "~Itinerary() deleting Reservation Items\n";
-		for (auto &item: reservations)
-			delete item;
-
-		reservations.clear();
+		deleteReservationItems();
 	}
 };
 

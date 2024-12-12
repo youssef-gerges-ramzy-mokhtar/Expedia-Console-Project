@@ -30,6 +30,15 @@ public:
 		return hotelAPI->cancelReservation(hotelRoomInfo, hotelRequest);
 	}
 
+	HotelReservationHandler& operator=(const HotelReservationHandler &other) {
+		if (this != &other) {
+			hotelRoomInfo = other.hotelRoomInfo;
+			hotelRequest = other.hotelRequest;
+		}
+
+		return *this;
+	}
+
 	~HotelReservationHandler() {
 		delete hotelAPI;
 	}

@@ -30,6 +30,15 @@ public:
 		return flightAPI->cancelReservation(flightInfo, flightRequest);
 	}
 
+	FlightReservationHandler& operator=(const FlightReservationHandler &other) {
+		if (this != &other) {
+			flightInfo = other.flightInfo;
+			flightRequest = other.flightRequest;
+		}
+
+		return *this;
+	}
+
 	~FlightReservationHandler() {
 		delete flightAPI;
 	}
