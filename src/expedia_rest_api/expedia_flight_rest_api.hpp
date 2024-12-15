@@ -1,7 +1,7 @@
 using namespace std;
 
 #include "../expedia_core_api/expedia_flight_api.hpp"
-#include "../internal_api_wrappers/external_apis/json.hpp"
+#include "../utils/json.hpp"
 
 #ifndef EXPEDIA_FLIGHT_REST_API_HPP_
 #define EXPEDIA_FLIGHT_REST_API_HPP_

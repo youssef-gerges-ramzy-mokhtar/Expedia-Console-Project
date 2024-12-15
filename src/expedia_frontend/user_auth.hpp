@@ -1,5 +1,5 @@
 #include "../expedia_core_api/user_authentication_api.hpp"
-#include "../utils.hpp"
+#include "../utils/utils.hpp"
 #include "user.hpp"
 #include "customer_user.hpp"
 #include "admin_user.hpp"

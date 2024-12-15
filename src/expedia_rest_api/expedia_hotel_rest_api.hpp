@@ -1,7 +1,7 @@
 using namespace std;
 
 #include "../expedia_core_api/expedia_hotel_api.hpp"
-#include "../internal_api_wrappers/external_apis/json.hpp"
+#include "../utils/json.hpp"
 
 #ifndef EXPEDIA_REST_API_H_
 #define EXPEDIA_REST_API_H_
