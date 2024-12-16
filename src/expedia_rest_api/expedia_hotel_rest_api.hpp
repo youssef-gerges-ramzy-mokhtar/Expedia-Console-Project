@@ -3,9 +3,10 @@ using namespace std;
 #include "../expedia_core_api/expedia_hotel_api.hpp"
 #include "../utils/json.hpp"
 
-#ifndef EXPEDIA_REST_API_H_
-#define EXPEDIA_REST_API_H_
+#ifndef EXPEDIA_HOTEL_REST_API_HPP_
+#define EXPEDIA_HOTEL_REST_API_HPP_
 
+// uri endpoint: expedia/hotel
 class ExpediaHotelRestAPI {
 private:
 	ExpediaHotelAPI expediaHotelAPI;

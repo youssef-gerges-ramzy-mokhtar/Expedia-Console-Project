@@ -6,6 +6,7 @@ using namespace std;
 #ifndef EXPEDIA_FLIGHT_REST_API_HPP_
 #define EXPEDIA_FLIGHT_REST_API_HPP_
 
+// uri endpoint: expedia/flight
 class ExpediaFlightRestAPI {
 private:
 	ExpediaFlightAPI expediaFlightAPI;
