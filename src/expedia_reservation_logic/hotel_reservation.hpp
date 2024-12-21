@@ -80,6 +80,14 @@ public:
 
 		return oss.str();
 	}
+
+	virtual void accept(IReservationVisitor &visitor) override {
+		visitor.visit(*this);
+	}
+
+	// getters
+	HotelRoomInfo getHotelRoomInfo() const { return hotelRoomInfo; }
+	HotelRequest getHotelRequest() const { return hotelRequest; }
 };
 
 #endif

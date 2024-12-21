@@ -79,6 +79,14 @@ public:
 		oss << "\tTotal Cost: " << totalCost() << "\n";
 		return oss.str();
 	}
+
+	virtual void accept(IReservationVisitor &visitor) override {
+		visitor.visit(*this);
+	}
+
+	// getters
+	FlightInfo getFlightInfo() const { return flightInfo; }
+	FlightRequest getFlightRequest() const { return flightRequest; }
 };
 
 #endif

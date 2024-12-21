@@ -1,10 +1,12 @@
 #include <vector>
 #include <string>
-#include <iostream>
+#include <sstream>
 using namespace std;
 
 #ifndef EXPEDIA_RESERVATION_LOGIC_HPP_
 #define EXPEDIA_RESERVATION_LOGIC_HPP_
+
+#include "reservation_visitor.hpp"
 
 class IReservationItem {
 public:
@@ -13,6 +15,7 @@ public:
 	virtual bool cancelReservation() = 0;
 	virtual IReservationItem* clone() const = 0;
 	virtual string toString() = 0;
+	virtual void accept(IReservationVisitor &visitor) = 0;
 	virtual ~IReservationItem() {}
 };
 
@@ -39,7 +42,7 @@ public:
 	
 	// copy constructor
 	Itinerary(const Itinerary &other) {
-		for (const auto &reservation: other.getAllReservation())
+		for (const auto &reservation: other.getAllReservations())
 			addReservationItem(reservation->clone());
 	}
 
@@ -107,14 +110,18 @@ public:
 		reservations.push_back(reservationItem);
 	}
 
-	const vector<IReservationItem*>& getAllReservation() const {
+	const vector<IReservationItem*>& getAllReservations() const {
 		return reservations;
+	}
+
+	virtual void accept(IReservationVisitor &visitor) override {
+		visitor.visit(*this);
 	}
 
 	Itinerary& operator=(const Itinerary &other) {
 		if (this != &other) {
 			deleteReservationItems(); // we need to removed any old reservation items stored in this object
-			for (const auto &reservation: other.getAllReservation())
+			for (const auto &reservation: other.getAllReservations())
 				addReservationItem(reservation->clone());
 		}
 
