@@ -12,6 +12,9 @@ private:
 	ExpediaFlightAPI expediaFlightAPI;
 
 private:
+	// private constructor (singelton)
+	ExpediaFlightRestAPI() {}
+
 	FlightRequest convertJsonToFlightRequest(const string &flightRequestJson) {
 		json::JSON req = json::JSON::Load(flightRequestJson)["flightRequest"];
 		return {
@@ -39,6 +42,15 @@ private:
 	}
 
 public:
+	// Disable copy constructor and assignment operator
+	ExpediaFlightRestAPI(const ExpediaFlightRestAPI &other) = delete;
+    ExpediaFlightRestAPI& operator=(const ExpediaFlightRestAPI &other) = delete;
+
+    static ExpediaFlightRestAPI& getInstance() {
+    	static ExpediaFlightRestAPI userAuthRestAPI;
+    	return userAuthRestAPI;
+    }
+
 	/**
 	 * expected json input:
 	 * 		"flightRequest": {departureDateTime, arrivalDateTime, origin, destination, adults, children, infants}

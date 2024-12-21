@@ -12,6 +12,9 @@ private:
 	ExpediaAuthenticationAPI expediaAuthenticationAPI;
 
 private:
+	// private constructor (singelton)
+	ExpediaAuthenticationRestAPI() {}
+
 	string convertAuthenticationStatusToJson(const AuthenticationStatus &status) {
 		using namespace json;
 		JSON res;
@@ -22,6 +25,7 @@ private:
 	    if (status.authenticatedSuccessfully()) {
 	        optional<UserInfo> userInfo = status.getUserInfo();
             JSON userJson;
+            userJson["id"] = userInfo->getUserId();
             userJson["email"] = userInfo->getEmail();
             userJson["username"] = userInfo->getUserId();
             userJson["userType"] = (userInfo->getUserType() == UserType::CUSTOMER) ? "CUSTOMER" : "ADMIN";
@@ -32,6 +36,15 @@ private:
 	}
 
 public:
+	// Disable copy constructor and assignment operator
+	ExpediaAuthenticationRestAPI(const ExpediaAuthenticationRestAPI &other) = delete;
+    ExpediaAuthenticationRestAPI& operator=(const ExpediaAuthenticationRestAPI &other) = delete;
+
+    static ExpediaAuthenticationRestAPI& getInstance() {
+    	static ExpediaAuthenticationRestAPI userAuthRestAPI;
+    	return userAuthRestAPI;
+    }
+
 	/**
 	 *  expected json input:
 	 * 		{"username": string, "password": string}
@@ -40,7 +53,7 @@ public:
 	 * 		{
 	 * 			"msg": string,
 	 * 			"success": boolean,
-	 * 			"userInfo": {"email": string, "username": string, "userType": enum} | null
+	 * 			"userInfo": {"id": string, "email": string, "username": string, "userType": enum} | null
 	 * 		}
 	 * 
 	 * note: userInfo is set to null if the authentication failed
@@ -62,7 +75,7 @@ public:
 	 * 		{
 	 * 			"msg": string,
 	 * 			"success": boolean,
-	 * 			"userInfo": {"email": string, "username": string, "userType": enum} | null
+	 * 			"userInfo": {"id": string, "email": string, "username": string, "userType": enum} | null
 	 * 		}
 	 * 
 	 * note: userInfo is set to null if the authentication failed
@@ -79,6 +92,17 @@ public:
 
 		// conver the AuthenticationStatus object returned to json
 		return convertAuthenticationStatusToJson(status);
+	}
+
+	// used only by the REST API classes and not to respond to external API requests
+	pair<bool, json::JSON> authenticateRequest(const string &req) {
+		json::JSON jsonReq = json::JSON::Load(req);
+		json::JSON loginStatusJson = json::JSON::Load(login(jsonReq["userInfo"].dump()));
+		return {loginStatusJson["success"].ToBool(), loginStatusJson};
+	}
+
+	ExpediaAuthenticationAPI& getUserAuthApi() {
+		return expediaAuthenticationAPI;
 	}
 };
 

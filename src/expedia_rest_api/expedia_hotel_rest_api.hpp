@@ -12,6 +12,9 @@ private:
 	ExpediaHotelAPI expediaHotelAPI;
 
 private:
+    // private constructor (singelton)
+    ExpediaHotelRestAPI() {}
+
 	HotelRequest convertJsonToHotelRequest(const string &hotelRequestJson) {
         json::JSON req = json::JSON::Load(hotelRequestJson)["hotelRequest"];
         return {
@@ -40,6 +43,15 @@ private:
     }
 
 public:
+    // Disable copy constructor and assignment operator
+    ExpediaHotelRestAPI(const ExpediaHotelRestAPI &other) = delete;
+    ExpediaHotelRestAPI& operator=(const ExpediaHotelRestAPI &other) = delete;
+
+    static ExpediaHotelRestAPI& getInstance() {
+        static ExpediaHotelRestAPI userAuthRestAPI;
+        return userAuthRestAPI;
+    }
+
 	/**
 	 * expected json input:
 	 * 		"hotelRequest": {fromDate, toDate, country, city, adults, children, neededRooms}
