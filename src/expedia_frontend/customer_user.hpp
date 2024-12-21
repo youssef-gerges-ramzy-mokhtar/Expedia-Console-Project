@@ -145,11 +145,11 @@ private:
 
 private:
 	bool userHasPaymentCards() {
-		return expediaBookingAPI.getUserPaymentCards(userInfo).size() > 0;
+		return expediaBookingAPI.getUserPaymentCards(userInfo.getUserId()).size() > 0;
 	}
 
 	CardInfo getPaymentCardSelectedByUser() {
-		vector<CardInfo> cards = expediaBookingAPI.getUserPaymentCards(userInfo);
+		vector<CardInfo> cards = expediaBookingAPI.getUserPaymentCards(userInfo.getUserId());
 		
 		cout << "Select a payment choice:\n";
 		for (int i = 0; i < cards.size(); i++) {
@@ -187,7 +187,7 @@ private:
 		cin >> address;
 
 		CardInfo cardInfo = {name, address, cardNumber, expiryDate, cvv};
-		expediaBookingAPI.addPaymentCard(userInfo, cardInfo);
+		expediaBookingAPI.addPaymentCard(userInfo.getUserId(), cardInfo);
 		return cardInfo;
 	}
 
@@ -222,11 +222,11 @@ private:
 	// still under implementation
 	void makeItinerary() {
 		Itinerary itinerary = itineraryMakerUI.createItinerary();
-		if (itinerary.getAllReservation().size() == 0)
+		if (itinerary.getAllReservations().size() == 0)
 			return;
 
 		CardInfo cardInfo = paymentCardUI.getPaymentCard();
-		bool itineraryBooked = expediaBookingAPI.book(itinerary, cardInfo, getUserInfo());
+		bool itineraryBooked = expediaBookingAPI.book(itinerary, cardInfo, getUserInfo().getUserId());
 		cout << "\n";
 
 		if (itineraryBooked) {
@@ -241,7 +241,7 @@ private:
 	}
 
 	void listUserItineraries() {
-		vector<Itinerary> itineraries = expediaBookingAPI.getUserBookedItineraries(getUserInfo());
+		vector<Itinerary> itineraries = expediaBookingAPI.getUserBookedItineraries(getUserInfo().getUserId());
 		if (itineraries.size() == 0) {
 			cout << "You don't have any itineraries\n\n";
 			return;

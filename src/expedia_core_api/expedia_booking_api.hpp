@@ -49,7 +49,7 @@ private:
 	}
 
 public:
-	bool book(Itinerary itinerary, CardInfo cardInfo, UserInfo userInfo) {
+	bool book(Itinerary itinerary, CardInfo cardInfo, const string &userID) {
 		// first try to reserve the itinerary
 		bool reserved = itinerary.reserve();
 		if (!reserved)
@@ -66,20 +66,20 @@ public:
 		}
 
 		// if payment success then register this itinerary to the user account and return true
-		userItineraries.addItineraryToUser(userInfo.getUserId(), itinerary);
+		userItineraries.addItineraryToUser(userID, itinerary);
 		return true;
 	}
 
-	vector<Itinerary> getUserBookedItineraries(const UserInfo &userInfo) {
-		return userItineraries.getUserItineraries(userInfo.getUserId());
+	vector<Itinerary> getUserBookedItineraries(const string &userID) {
+		return userItineraries.getUserItineraries(userID);
 	}
 
-	void addPaymentCard(const UserInfo &userInfo, CardInfo &paymentCard) {
-		userPaymentCards.addCard(userInfo.getUserId(), paymentCard);
+	void addPaymentCard(const string &userID, CardInfo &paymentCard) {
+		userPaymentCards.addCard(userID, paymentCard);
 	}
 
-	vector<CardInfo> getUserPaymentCards(const UserInfo &userInfo) {
-		return userPaymentCards.getAllUserCards(userInfo.getUserId());
+	vector<CardInfo> getUserPaymentCards(const string &userID) {
+		return userPaymentCards.getAllUserCards(userID);
 	}
 };
 
