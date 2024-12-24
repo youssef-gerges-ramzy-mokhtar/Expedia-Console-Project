@@ -1,23 +1,19 @@
 #include <stdexcept>
 using namespace std;
 
-#include "../expedia_core_api/expedia_booking_api.hpp"
-#include "../expedia_core_api/expedia_flight_api.hpp"
-#include "../expedia_core_api/expedia_hotel_api.hpp"
-#include "../expedia_reservation_logic/flight_reservation.hpp"
-#include "../expedia_reservation_logic/hotel_reservation.hpp"
 #include "user.hpp"
+#include "managers/managers_factory.hpp"
 
 #ifndef CUSTOMER_USER_UI_HPP_
 #define CUSTOMER_USER_UI_HPP_
 
 class ItineraryMakerUI {
 private:
-	ExpediaFlightAPI flightAPI;
-	ExpediaHotelAPI hotelAPI;
+	IFlightsManager &flightsManager;
+	IHotelsManager &hotelsManager;
 
 private:
-	FlightReservationItem* addFlight() {
+	void addFlight(ItineraryData &itinerary) {
 		string from;
 		cout << "Enter From: ";
 		cin >> from;
@@ -38,16 +34,24 @@ private:
 		cout << "Enter # of adults children (5-16) and infants: ";
 		cin >> adults >> children >> infants;
 
-		FlightRequest flightRequest = {fromDate, toDate, from, to, adults, children, infants};
-		vector<FlightInfo> searchResults = flightAPI.search(flightRequest);
+		// construct the data needed for the request
+		FlightData flightRequest;
+		flightRequest.departureDateTime = fromDate; 
+		flightRequest.arrivalDateTime = toDate; 
+		flightRequest.origin = from; 
+		flightRequest.destination = to; 
+		flightRequest.adultsReq = adults; 
+		flightRequest.childrenReq = children; 
+		flightRequest.infantsReq = infants;
 
+		vector<FlightData> searchResults = flightsManager.searchFlights(flightRequest);
 		for (int i = 0; i < searchResults.size(); i++) {
 			const auto &flight = searchResults[i];
 			cout << i + 1 << "-"
-				<< " Airline: " << flight.getAirlineName()
-				<< " Cost: " << flight.getPrice()
-				<< " Departure Date: " << flight.getDepartureDateTime()
-				<< " Arrival Date: " << flight.getArrivalDateTime() << "\n";
+				<< " Airline: " << flight.airlineName
+				<< " Cost: " << flight.price
+				<< " Departure Date: " << flight.departureDateTime
+				<< " Arrival Date: " << flight.arrivalDateTime << "\n";
 		}
 
 		int choice;
@@ -56,13 +60,18 @@ private:
 		cout << "\n";
 
 		if (choice == -1)
-			return nullptr;
+			return;
 
 		assert(1 <= choice && choice <= searchResults.size());
-		return new FlightReservationItem(searchResults[choice -1], flightRequest);
+
+		// add the request info to the choosen search result
+		searchResults[choice -1].adultsReq = adults;
+		searchResults[choice -1].childrenReq = children;
+		searchResults[choice -1].infantsReq = infants;
+		itinerary.flights.push_back(searchResults[choice -1]);
 	}
 
-	HotelReservationItem* addHotel() {
+	void addHotel(ItineraryData &itinerary) {
 		string fromDate;
 		cout << "Enter From Date (dd-mm-yy): ";
 		cin >> fromDate;
@@ -87,17 +96,26 @@ private:
 		cout << "Enter # of adults and childrne: ";
 		cin >> adults >> children;
 
-		HotelRequest hotelRequest = {fromDate, toDate, country, city, adults, children, neededRooms};
-		vector<HotelRoomInfo> searchResults = hotelAPI.search(hotelRequest);
+		// construct the data needed for the request
+		HotelData hotelRequest;
+		hotelRequest.fromDateReq = fromDate;
+		hotelRequest.toDateReq = toDate;
+		hotelRequest.country = country;
+		hotelRequest.city = city;
+		hotelRequest.neededRoomsReq = neededRooms;
+		hotelRequest.adultsReq = adults;
+		hotelRequest.childrenReq = children;
+		
+		vector<HotelData> searchResults = hotelsManager.searchHotels(hotelRequest);
 
 		for (int i = 0; i < searchResults.size(); i++) {
 			const auto &hotel = searchResults[i];
 			cout << i + 1 << "-"
-				<< " Hotel: " << hotel.getHotelName()
-				<< " Room Type: " << hotel.getRoomType() << "(" << hotel.getAvailableRooms() << ")"
-				<< " Price per night: " << hotel.getPricePerNight()
-				<< " From Date: " << hotel.getFromDate()
-				<< " to " << hotel.getToDate() << "\n";
+				<< " Hotel: " << hotel.hotelName
+				<< " Room Type: " << hotel.roomType << "(" << hotel.availableRooms << ")"
+				<< " Price per night: " << hotel.pricePerNight
+				<< " From Date: " << hotel.fromAvailableDate
+				<< " to " << hotel.toAvailableDate << "\n";
 		}
 
 		int choice;
@@ -106,32 +124,39 @@ private:
 		cout << "\n";
 
 		if (choice == -1)
-			return nullptr;
+			return;
 
 		assert(1 <= choice && choice <= searchResults.size());
-		return new HotelReservationItem(searchResults[choice -1], hotelRequest);
+		
+		// add the request info to the choosen search result
+		searchResults[choice -1].adultsReq = adults;
+		searchResults[choice -1].childrenReq = children;
+		searchResults[choice -1].neededRoomsReq = neededRooms;
+		itinerary.hotels.push_back(searchResults[choice -1]);
 	}
 
 public:
-	Itinerary createItinerary() {
-		Itinerary itinerary;
+	// @todo use factory
+	ItineraryMakerUI() : 
+		flightsManager(FlightsManagerFactory::getFlightsManager()),
+		hotelsManager(HotelsManagerFactory::getHotelsManager())
+	{}
+
+	ItineraryData createItinerary() {
+		ItineraryData itinerary;
 
 		while (true) {
 			int choice = readMenuOption({"Add Flight", "Add Hotel", "Done", "Cancel"});
 			cout << "\n";
 
-			IReservationItem* item = nullptr;
 			if (choice == 1)
-				item = addFlight();
+				addFlight(itinerary);
 			else if (choice == 2)
-				item = addHotel();
+				addHotel(itinerary);
 			else if (choice == 3)
 				break;
 			else if (choice == 4)
-				return Itinerary(); // empty Itinerary
-
-			if (item != nullptr)
-				itinerary.addReservationItem(item);
+				return ItineraryData(); // empty Itinerary
 		}
 
 		return itinerary;
@@ -140,21 +165,22 @@ public:
 
 class PaymentCardUI {
 private:
-	ExpediaBookingAPI &expediaBookingAPI;
-	UserInfo userInfo;
+	IBookingManager &bookingManager;
+	UserData userData;
 
 private:
 	bool userHasPaymentCards() {
-		return expediaBookingAPI.getUserPaymentCards(userInfo.getUserId()).size() > 0;
+		return bookingManager.getPaymentCards(userData).size() > 0;
 	}
 
-	CardInfo getPaymentCardSelectedByUser() {
-		vector<CardInfo> cards = expediaBookingAPI.getUserPaymentCards(userInfo.getUserId());
-		
+	PaymentCardData getPaymentCardSelectedByUser() {
+		vector<PaymentCardData> cards = bookingManager.getPaymentCards(userData);
+		assert(!cards.empty());
+
 		cout << "Select a payment choice:\n";
 		for (int i = 0; i < cards.size(); i++) {
 			auto &card = cards[i];
-			cout << i+1 << ":" << " Owner: " << card.getName() << " Card number: " << card.getId() << "\n";
+			cout << i+1 << ":" << " Owner: " << card.name << " Card number: " << card.id << "\n";
 		}
 
 		int choice;
@@ -165,7 +191,7 @@ private:
 		return cards[choice-1];
 	}
 
-	CardInfo addPaymentCard() {
+	PaymentCardData addPaymentCard() {
 		string name;
 		cout << "Enter Name on Card: ";
 		cin >> name;
@@ -186,17 +212,18 @@ private:
 		cout << "Enter Billing Address: ";
 		cin >> address;
 
-		CardInfo cardInfo = {name, address, cardNumber, expiryDate, cvv};
-		expediaBookingAPI.addPaymentCard(userInfo.getUserId(), cardInfo);
-		return cardInfo;
+		PaymentCardData card = {name, address, cardNumber, expiryDate, cvv};
+		bookingManager.addPaymentCard(card, userData);
+		return card;
 	}
 
 public:
-	PaymentCardUI(ExpediaBookingAPI &expediaBookingAPI, const UserInfo &userInfo) : 
-		expediaBookingAPI(expediaBookingAPI), userInfo(userInfo) 
+	PaymentCardUI(const UserData &userData) : 
+		bookingManager(BookingManagerFactory::getBookingManger()),
+		userData(userData) 
 	{}
 
-	CardInfo getPaymentCard() {
+	PaymentCardData getPaymentCard() {
 		while (true) {
 			int choice = readMenuOption({"Pick from available cards", "Add new payment card"});
 			cout << "\n";
@@ -214,19 +241,18 @@ public:
 
 class CustomerUserUI: public UserUI {
 private:
-	ExpediaBookingAPI expediaBookingAPI;
+	IBookingManager &bookingManager;
 	ItineraryMakerUI itineraryMakerUI;
 	PaymentCardUI paymentCardUI;
 
 private:
-	// still under implementation
 	void makeItinerary() {
-		Itinerary itinerary = itineraryMakerUI.createItinerary();
-		if (itinerary.getAllReservations().size() == 0)
+		ItineraryData itinerary = itineraryMakerUI.createItinerary();
+		if (itinerary.empty())
 			return;
 
-		CardInfo cardInfo = paymentCardUI.getPaymentCard();
-		bool itineraryBooked = expediaBookingAPI.book(itinerary, cardInfo, getUserInfo().getUserId());
+		PaymentCardData cardInfo = paymentCardUI.getPaymentCard();
+		bool itineraryBooked = bookingManager.book(itinerary, cardInfo, getUserData());
 		cout << "\n";
 
 		if (itineraryBooked) {
@@ -241,24 +267,30 @@ private:
 	}
 
 	void listUserItineraries() {
-		vector<Itinerary> itineraries = expediaBookingAPI.getUserBookedItineraries(getUserInfo().getUserId());
-		if (itineraries.size() == 0) {
+		vector<ItineraryData> itineraries = bookingManager.getItineraries(getUserData());
+		if (itineraries.empty()) {
 			cout << "You don't have any itineraries\n\n";
 			return;
 		}
 
-		for (auto &itinerary: itineraries)
-			cout << itinerary.toString() << "\n";
+		cout << "itineraries: " << itineraries.size();
+		cout << "Flights: " << itineraries[0].flights.size();
+		cout << "Hotels: " << itineraries[0].hotels.size();
+		cout << "Still Under Implementation\n";
 	}
 
 public:
-	CustomerUserUI(const UserInfo &userInfo) : UserUI(userInfo), paymentCardUI(expediaBookingAPI, userInfo) {
-		if (userInfo.getUserType() != UserType::CUSTOMER)
+	CustomerUserUI(const UserData &userData) : 
+		UserUI(userData),
+		bookingManager(BookingManagerFactory::getBookingManger()),
+		paymentCardUI(userData)
+	{
+		if (userData.userType != "CUSTOMER")
 			throw invalid_argument("Invalid User Type, expected CUSTOMER user");
 	}
 
 	virtual void runUI() override {
-		cout << "Hello " << getUserInfo().getUserId() << " | Customer View\n\n";
+		cout << "Hello " << getUserData().id << " | Customer View\n\n";
 		while (true) {
 			int choice = readMenuOption({"View Profile", "Make Itinerary", "List my itineraries", "Logout"});
 			cout << "\n";

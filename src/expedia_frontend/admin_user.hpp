@@ -5,8 +5,8 @@
 
 class AdminUserUI: public UserUI {
 public:
-	AdminUserUI(const UserInfo &userInfo) : UserUI(userInfo) {
-		if (userInfo.getUserType() != UserType::ADMIN)
+	AdminUserUI(const UserData &userData) : UserUI(userData) {
+		if (userData.userType != "ADMIN")
 			throw invalid_argument("Invalid User Type, expected ADMIN user");
 	}
 

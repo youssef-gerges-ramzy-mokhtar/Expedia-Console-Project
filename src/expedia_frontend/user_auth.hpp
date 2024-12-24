@@ -1,6 +1,6 @@
-#include "../expedia_core_api/user_authentication_api.hpp"
 #include "../utils/utils.hpp"
 #include "user.hpp"
+#include "managers/abstract_managers.hpp"
 #include "customer_user.hpp"
 #include "admin_user.hpp"
 
@@ -9,29 +9,30 @@
 
 class UserAuthLandingPageUI {
 private:
-	ExpediaAuthenticationAPI expediaAuthenticationAPI;
+	IUserAuthenticationManager &userAuthManager;
 
 private:
-	UserUI* convertToUserUI(const UserInfo &userInfo) {
-		UserType userType = userInfo.getUserType();
-		if (userType == UserType::CUSTOMER)
-			return new CustomerUserUI(userInfo);
-		else if (userType == UserType::ADMIN)
-			return new CustomerUserUI(userInfo);
+	UserUI* convertToUserUI(const UserData &userData) {
+		string userType = userData.userType;
+		if (userType == "CUSTOMER")
+			return new CustomerUserUI(userData);
+		else if (userType == "ADMIN")
+			return new AdminUserUI(userData);
 		else {
 			cout << "Unrecognized User Type. Please contact technical support\n";
 			return nullptr;
 		}
 	}
 
-	UserUI* handleAuthenticationStatus(const AuthenticationStatus &status) {
-		if (!status.authenticatedSuccessfully()) {
-			cout << status.authenticationMsg() << "\n";
+	UserUI* handleAuthenticationStatus(AuthStatusData &status, const string &password) {
+		if (!status.authenticated) {
+			cout << status.responseMessage << "\n";
 			return nullptr;
 		}
 
 		cout << "Authentication Success\n";
-		return convertToUserUI(status.getUserInfo().value());
+		status.userDataResponse.password = password; // password is not returned by the backend that is why it is handled and stored here by the client-side (i.e. Frontend)
+		return convertToUserUI(status.userDataResponse);
 	}
 
 	UserUI* login() {
@@ -39,8 +40,8 @@ private:
 		string username, password;
 		cin >> username >> password;
 
-		AuthenticationStatus status = expediaAuthenticationAPI.login(username, password);
-		return handleAuthenticationStatus(status);
+		AuthStatusData status = userAuthManager.login({.username = username, .password = password});
+		return handleAuthenticationStatus(status, password);
 	}
 
 	UserUI* signup() {
@@ -49,11 +50,13 @@ private:
 		cin >> username >> email >> password;
 
 		// when using the signup functionality by default its is a Customer (as Admins don't signup through the frontend)
-		AuthenticationStatus status = expediaAuthenticationAPI.signup(email, username, password, CUSTOMER);
-		return handleAuthenticationStatus(status);
+		AuthStatusData status = userAuthManager.signup({.email = email, .username = username, .password = password, .userType = "CUSTOMER"});
+		return handleAuthenticationStatus(status, password);
 	}
 
 public:
+	UserAuthLandingPageUI() : userAuthManager(UserAuthManagerFactory::getUserAuthManager()) {}
+
 	UserUI* accessSystem() {
 		while (true) {
 			int choice = readMenuOption({"Login", "Sign Up", "Exit"});

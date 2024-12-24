@@ -1,26 +1,25 @@
-#include "../expedia_core_api/user_authentication_api.hpp"
+#include <iostream>
+using namespace std;
+
+#include "managers/manager_data_objects.hpp"
 
 #ifndef USER_UI_HPP_
 #define USER_UI_HPP_
 
 class UserUI {
 private:
-	UserInfo userInfo;
+	UserData userData;
 
 public:
-	UserUI(const UserInfo &userInfo) : userInfo(userInfo) {}
+	UserUI(const UserData &userData) : userData(userData) {}
 
-	UserInfo getUserInfo() const {
-		return userInfo;
+	UserData getUserData() const {
+		return userData;
 	}
 
 	virtual void viewProfile() const {
-		string userType = "Customer";
-		if (userInfo.getUserType() == UserType::ADMIN)
-			userType = "Admin";
-
-		cout << "UserName: " << userInfo.getUserId() << " | " << userType << "\n";
-		cout << "Email: " << userInfo.getEmail() << "\n\n";
+		cout << "UserName: " << userData.id << " | " << userData.userType << "\n";
+		cout << "Email: " << userData.email << "\n\n";
 	}
 
 	virtual void runUI() = 0;
