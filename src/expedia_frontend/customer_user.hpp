@@ -273,10 +273,8 @@ private:
 			return;
 		}
 
-		cout << "itineraries: " << itineraries.size();
-		cout << "Flights: " << itineraries[0].flights.size();
-		cout << "Hotels: " << itineraries[0].hotels.size();
-		cout << "Still Under Implementation\n";
+		for (const auto &itinerary: itineraries)
+			cout << itinerary.toString() << endl;
 	}
 
 public:

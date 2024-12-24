@@ -240,6 +240,7 @@ private:
 			for (int i = 0; i < itineraryJson["subItineraries"].size(); i++)
 				itinerary.subItineraries.push_back(jsonToItinerary(itineraryJson["subItineraries"][i].dump()));
 
+		itinerary.cost = itineraryJson["cost"].ToFloat();
 		return itinerary;
 	}
 
@@ -299,7 +300,6 @@ public:
 			ExpediaBookingRestAPI::getInstance().getUserItineraries(userCredentialsJson.dump())
 		);
 
-		cout << "itinerariesJson: " << itinerariesJson << endl;
 		// convert the json to a vector of ItineraryData
 		vector<ItineraryData> itineraries;
 		for (int i = 0; i < itinerariesJson.size(); i++)
