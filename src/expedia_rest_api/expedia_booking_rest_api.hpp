@@ -158,7 +158,7 @@ private:
 
 			FlightInfo flightInfo = {
 				flightInfoJson["airlineName"].ToString(),
-				flightInfoJson["flightInfoJson"].ToString(),
+				flightInfoJson["flightNumber"].ToString(),
 				flightInfoJson["departureDateTime"].ToString(),
 				flightInfoJson["arrivalDateTime"].ToString(),
 				flightInfoJson["origin"].ToString(),
