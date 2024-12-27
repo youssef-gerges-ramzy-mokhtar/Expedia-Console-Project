@@ -412,4 +412,129 @@ public:
 	}
 };
 
+
+// TEMP: QUICK CHECKS FOR THE REST API
+/*
+	#include "../expedia_core_api/expedia_hotel_api.hpp"
+	#include "../expedia_core_api/expedia_flight_api.hpp"
+	void itinerary_json_tmp() {
+		// hotels check
+		ReservationToJsonVisitor visitor;
+		HotelRequest hotelRequest = {"a", "a", "germany", "frankfurt", 1, 0, 1};
+		ExpediaHotelAPI expediaHotelAPI;
+		vector<HotelRoomInfo> hotelSearchResults = expediaHotelAPI.search(hotelRequest);
+		HotelRoomInfo selectedHotelRoom = hotelSearchResults[2];
+		IReservationItem* hotelReservation = new HotelReservationItem(selectedHotelRoom, hotelRequest);
+
+		// hotelReservation->accept(visitor);
+		// cout << visitor.getJson() << endl;
+
+		// flights check
+		FlightRequest flightRequest = {"a", "a", "egypt", "berlin", 1, 0, 0};
+		ExpediaFlightAPI expediaFlightAPI;
+		vector<FlightInfo> searchResult = expediaFlightAPI.search(flightRequest);
+		FlightInfo selectedFlight = searchResult[1];
+		IReservationItem* flightReservation = new FlightReservationItem(selectedFlight, flightRequest);
+		
+		// flightReservation->accept(visitor);
+		// cout << visitor.getJson() << endl;
+
+		// Itinerary check
+		Itinerary it;
+		it.addReservationItem(flightReservation->clone());
+		it.addReservationItem(flightReservation->clone());
+		it.addReservationItem(hotelReservation->clone());
+
+		Itinerary* sub = new Itinerary();
+		sub->addReservationItem(flightReservation->clone());
+		it.addReservationItem(sub);
+
+		Itinerary* sub2 = new Itinerary();
+		sub2->addReservationItem(flightReservation->clone());
+		it.addReservationItem(sub2);
+
+		Itinerary* sub_sub = new Itinerary();
+		sub_sub->addReservationItem(hotelReservation->clone());
+		sub_sub->addReservationItem(hotelReservation->clone());
+		sub->addReservationItem(sub_sub);
+		
+		it.accept(visitor);
+		cout << visitor.getJson() << endl;
+
+
+		// Testing the Json to Reservation
+		JsonToReservation jsonToReservation;
+		// vector<FlightReservationItem*> flightReservations = jsonToReservation.toFlights(json::JSON::Load(visitor.getJson()));
+		// vector<HotelReservationItem*> hotelReservations = jsonToReservation.toHotels(json::JSON::Load(visitor.getJson()));
+		
+		// vector<IReservationItem*> items;
+		// items.insert(items.end(), flightReservations.begin(), flightReservations.end());
+		// items.insert(items.end(), hotelReservations.begin(), hotelReservations.end());
+
+		// for (auto &item: items)
+		// 	cout << item->toString() << endl;
+
+		Itinerary* iti = jsonToReservation.toItinerary(json::JSON::Load(visitor.getJson()));
+		cout << iti->toString();
+	}
+
+	void book_tmp() {
+		cout << "book_tmp\n\n";
+
+		string userCred = R"({"username": "youssef", "password": "12345678", "name": "abc", "userType": "CUSTOMER"})";
+		ExpediaAuthenticationRestAPI &userAuthApi = ExpediaAuthenticationRestAPI::getInstance();
+		cout << userAuthApi.signup(userCred) << endl << endl;
+
+		string itinerary = R"({"category":"itinerary","cost":6400,"flights":[{"category":"flights","cost":250,"flightInfo":{"airlineName":"air-canada-airline","arrivalDateTime":"10-02-2022","departureDateTime":"29-01-2022","destination":"berlin","flightNumber":"n/a","origin":"egypt","price":250},"flightRequest":{"adults":1,"children":0,"infants":0}},{"category":"flights","cost":250,"flightInfo":{"airlineName":"air-canada-airline","arrivalDateTime":"10-02-2022","departureDateTime":"29-01-2022","destination":"berlin","flightNumber":"n/a","origin":"egypt","price":250},"flightRequest":{"adults":1,"children":0,"infants":0}}],"hotels":[{"category":"hotels","cost":1800,"roomInfo":{"availableRooms":5,"city":"frankfurt","country":"germany","fromDate":"29-01-2022","hotelName":"marriott","pricePerNight":600,"roomType":"Private View","toDate":"10-02-2022"},"roomRequest":{"adults":1,"children":0,"neededRooms":1}}],"subItineraries":[{"category":"itinerary","cost":3850,"flights":[{"category":"flights","cost":250,"flightInfo":{"airlineName":"air-canada-airline","arrivalDateTime":"10-02-2022","departureDateTime":"29-01-2022","destination":"berlin","flightNumber":"n/a","origin":"egypt","price":250},"flightRequest":{"adults":1,"children":0,"infants":0}}],"subItineraries":[{"category":"itinerary","cost":3600,"hotels":[{"category":"hotels","cost":1800,"roomInfo":{"availableRooms":5,"city":"frankfurt","country":"germany","fromDate":"29-01-2022","hotelName":"marriott","pricePerNight":600,"roomType":"Private View","toDate":"10-02-2022"},"roomRequest":{"adults":1,"children":0,"neededRooms":1}},{"category":"hotels","cost":1800,"roomInfo":{"availableRooms":5,"city":"frankfurt","country":"germany","fromDate":"29-01-2022","hotelName":"marriott","pricePerNight":600,"roomType":"Private View","toDate":"10-02-2022"},"roomRequest":{"adults":1,"children":0,"neededRooms":1}}]}]},{"category":"itinerary","cost":250,"flights":[{"category":"flights","cost":250,"flightInfo":{"airlineName":"air-canada-airline","arrivalDateTime":"10-02-2022","departureDateTime":"29-01-2022","destination":"berlin","flightNumber":"n/a","origin":"egypt","price":250},"flightRequest":{"adults":1,"children":0,"infants":0}}]}]})";
+		string userInfo = R"({"username": "youssef", "password": "12345678"})";
+		string paymentCard = R"({"nameOnCard": "abc", "address": "def", "id": "1234567812345678", "expiryDate": "04/27", "cvv": 123})";
+		json::JSON obj;
+		obj["itinerary"] = json::JSON::Load(itinerary);
+		obj["userInfo"] = json::JSON::Load(userInfo);
+		obj["paymentCard"] = json::JSON::Load(paymentCard);
+
+		ExpediaBookingRestAPI &restApi = ExpediaBookingRestAPI::getInstance();
+		cout << restApi.book(obj.dump()) << endl;
+		cout << restApi.book(obj.dump()) << endl;
+	}
+
+	void get_itineraries_tmp() {
+		cout << "get_itineraries_tmp\n\n";
+
+		string userInfo = R"({"username": "youssef", "password": "12345678"})";
+		json::JSON obj;
+		obj["userInfo"] = json::JSON::Load(userInfo);
+		
+		ExpediaBookingRestAPI &restApi = ExpediaBookingRestAPI::getInstance();
+		// cout << restApi.getUserItineraries(obj.dump()) << endl;
+	}
+
+	void payment_cards_tmp() {
+		cout << "payment_cards_tmp\n\n";
+
+		// Addming payment cards
+		json::JSON obj;
+		string userInfo = R"({"username": "youssef", "password": "12345678"})";
+		string paymentCard = R"({"nameOnCard": "abc", "address": "def", "id": "1234567812345678", "expiryDate": "04/27", "cvv": 123})";
+		obj["userInfo"] = json::JSON::Load(userInfo);
+		obj["paymentCard"] = json::JSON::Load(paymentCard);
+
+		ExpediaBookingRestAPI &restApi = ExpediaBookingRestAPI::getInstance();
+		cout << restApi.addPaymentCard(obj.dump()) << endl;
+		cout << restApi.addPaymentCard(obj.dump()) << endl;
+
+
+		cout << restApi.getUserPaymentCards(obj.dump()) << endl;
+	}
+
+	int main() {
+		book_tmp();
+		get_itineraries_tmp();
+		payment_cards_tmp();
+
+		cout << "NO RTE\n";
+		return 0;
+	}
+*/
+
 #endif

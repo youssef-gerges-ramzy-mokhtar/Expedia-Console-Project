@@ -78,4 +78,26 @@ public:
 	}
 };
 
+
+// TEMP: QUICK CHECKS FOR THE REST API
+/*
+    int main() {
+        ExpediaHotelRestAPI &restAPI = ExpediaHotelRestAPI::getInstance();
+        string hotelRequestJson = "{\"hotelRequest\": { \
+            \"fromDate\": \"2024-12-20\", \
+            \"toDate\": \"2024-12-25\", \
+            \"country\": \"Germany\", \
+            \"city\": \"Berlin\", \
+            \"adults\": 2, \
+            \"children\": 1, \
+            \"neededRooms\": 1 \
+        }}";
+
+        string res = restAPI.search(hotelRequestJson);
+        cout << res << endl;
+        
+        return 0;
+    }
+*/
+
 #endif

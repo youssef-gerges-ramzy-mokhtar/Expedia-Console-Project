@@ -106,4 +106,34 @@ public:
 	}
 };
 
+
+// TEMP: QUICK CHECKS FOR THE REST API
+/*
+	int main() {
+	    ExpediaAuthenticationRestAPI &authApi = ExpediaAuthenticationRestAPI::getInstance();
+
+	    // Test signup
+	    cout << "Testing signup:" << endl;
+	    string signupInput = R"({"email": "johndoe@example.com", "username": "johndoe", "password": "password123", "userType": "CUSTOMER"})";
+	    cout << "Signup Response: " << authApi.signup(signupInput) << endl;
+
+	    // Test login
+	    cout << "\nTesting login:" << endl;
+	    string loginInput = R"({"username": "johndoe", "password": "password123"})";
+	    cout << "Login Response: " << authApi.login(loginInput) << endl;
+
+	    // Test invalid login
+	    cout << "\nTesting invalid login:" << endl;
+	    string invalidLoginInput = R"({"username": "johndoe", "password": "wrongpassword"})";
+	    cout << "Invalid Login Response: " << authApi.login(invalidLoginInput) << endl;
+
+	    // Test invalid signup
+	    cout << "\nTesting invalid signup:" << endl;
+	    string invalidSignupInput = R"({"email": "abc", "username": "johndoe", "password": "abcabcabc", "userType": "CUSTOMER"})";
+	    cout << "Invalid Signup Response: " << authApi.signup(invalidSignupInput) << endl;
+
+	    return 0;
+	}
+*/
+
 #endif

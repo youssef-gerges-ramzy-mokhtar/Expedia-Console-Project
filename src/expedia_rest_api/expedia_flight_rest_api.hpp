@@ -77,4 +77,26 @@ public:
 	}
 };
 
+
+// TEMP: QUICK CHECKS FOR THE REST API
+/*
+	int main() {
+		ExpediaFlightRestAPI &restAPI = ExpediaFlightRestAPI::getInstance();
+		string flightRequestJson = "{\"flightRequest\": { \
+			\"departureDateTime\": \"1234\", \
+			\"arrivalDateTime\": \"4321\", \
+			\"origin\": \"cairo\", \
+			\"destination\": \"frankfurt\", \
+			\"adults\": 2, \
+			\"children\": 2, \
+			\"infants\": 0 \
+		}}";
+
+		string res = restAPI.search(flightRequestJson);
+		cout << res << endl;
+		
+		return 0;
+	}
+*/
+
 #endif
