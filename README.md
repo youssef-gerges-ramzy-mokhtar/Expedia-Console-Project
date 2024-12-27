@@ -46,20 +46,20 @@ The project idea and requirements are based on Dr. Mostafa Saad's udemy [C++ cou
 > - https://answers.launchpad.net/gcc-arm-embedded/+question/237311
 > - https://gcc.gnu.org/legacy-ml/gcc-help/2013-05/msg00155.html
 
-
 ## Example Usage
+- Start Menu, Signup & Viewing Profile <br>
+  ![image](https://github.com/user-attachments/assets/ffad74a9-21b8-42fc-bbac-d0fa115ec104)
+- Making an Itinerary, Searching & adding a flight to the itinerary <br>
+  ![image](https://github.com/user-attachments/assets/f3bdd8d6-dad6-4b3a-98e0-ef9eee1ac3c2)
+- Searching & adding a hotel to the itinerary <br>
+  ![image](https://github.com/user-attachments/assets/ed39f0f4-306b-4589-9366-0b58c278275c)
+- Booking the Itinerary <br>
+  ![image](https://github.com/user-attachments/assets/bcde348c-d976-4f2c-8c1e-938030272f90)
+- Listing the User Booked Itineraries <br>
+  ![image](https://github.com/user-attachments/assets/353f6da2-39bc-41e2-bd5f-88b4429a5264)
+
 
 ## Rest API Support
 Probably the title is a bit catchy :)
 
 ## Final Remarks
-
-
-
-
-Requirement C++ 17
-
-
-// Side Remark if you are using windows sometimes you might got a compiler error that a header file doesn't exist that only happens if you clone the project in a path with a lot of characters (~256 characters), due to windows path length limits the C++ preprocessor fails to open the file on such a long path (If interested to know more about this topic you can have a look at the below links)
-  - https://answers.launchpad.net/gcc-arm-embedded/+question/237311
-  - https://gcc.gnu.org/legacy-ml/gcc-help/2013-05/msg00155.html
