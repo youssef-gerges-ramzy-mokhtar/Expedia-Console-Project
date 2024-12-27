@@ -290,7 +290,7 @@ private:
         authStatusData.responseMessage = authenticationStatus.authenticationMsg();
         
         if (authenticationStatus.authenticatedSuccessfully()) {
-            const UserInfo &userInfo = authenticationStatus.getUserInfo().value();
+            UserInfo userInfo = authenticationStatus.getUserInfo().value();
             authStatusData.userDataResponse = {
                 .id = userInfo.getUserId(),
                 .email = userInfo.getEmail(),
