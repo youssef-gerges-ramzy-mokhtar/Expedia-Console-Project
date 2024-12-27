@@ -29,11 +29,23 @@ __The Idea of External APIs:__
 
 __Project Idea:__<br>
 The project idea and requirements are based on Dr. Mostafa Saad's udemy [C++ course](https://www.udemy.com/course/cpp-4skills/?couponCode=ST12MT122624)
+<br><br>
 
 > [!NOTE]
 > Implementation is directly placed inside header files for fast development. That is not a good practice especially when needing to change implementations without modifying the definations/interface of a header file. Also, it increase the compilation time as the preprecossor just copies the whole header file when being included, but that is not a big issue with this small project.
 
 ## Running the Project
+- You need a C++ 17 compiler (currently I am using the GNU compiler)
+- Clone and run the ``expedia_main.cpp`` file, as following:
+  ```bash
+  g++ expedia_main.cpp
+  Windows: a.exe    Linux: ./a.out
+  ```
+> [!CAUTION]
+> On Windows, you might encounter a compiler error that a header file does not exist. This happens when the project is cloned into a directory with a very long path (~256 characters). Due to Windows path length limits, the C++ preprocessor may fail to open such files. If you're interested in learning more about this limitation, refer to the links below:
+> - https://answers.launchpad.net/gcc-arm-embedded/+question/237311
+> - https://gcc.gnu.org/legacy-ml/gcc-help/2013-05/msg00155.html
+
 
 ## Example Usage
 
