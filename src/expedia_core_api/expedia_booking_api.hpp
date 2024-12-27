@@ -74,7 +74,7 @@ public:
 		return userItineraries.getUserItineraries(userID);
 	}
 
-	void addPaymentCard(const string &userID, CardInfo &paymentCard) {
+	void addPaymentCard(const string &userID, const CardInfo &paymentCard) {
 		userPaymentCards.addCard(userID, paymentCard);
 	}
 
