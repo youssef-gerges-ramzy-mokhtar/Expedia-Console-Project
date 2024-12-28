@@ -3,8 +3,8 @@
 ## Table of Contents
 1. [Overview](#overview)
 2. [Running the Project](#running-the-project)
-3. [Example Usage](#example-usage)
-4. [Rest API Support](#rest-api-support)
+3. [Rest API Support](#rest-api-support)
+4. [Example Usage](#example-usage)
 5. [Final Remarks](#final-remarks)
 
 ## Overview
@@ -46,6 +46,24 @@ The project idea and requirements are based on Dr. Mostafa Saad's udemy [C++ cou
 > - https://answers.launchpad.net/gcc-arm-embedded/+question/237311
 > - https://gcc.gnu.org/legacy-ml/gcc-help/2013-05/msg00155.html
 
+## Rest API Support
+Probably the title may seem a bit misleading since there are no real network calls. However, the [rest-api-support](https://github.com/youssef-gerges-ramzy-mokhtar/Expedia-Console-Project/tree/rest-api-support) branch extends the main branch by simulating REST API functionality using JSON. The main changes include:
+  1. __REST API Wrappers:__ Added wrappers over the ```expedia_expedia_api``` classes to simulate REST API functionality
+  2. __Frontend Refactor:__ The ```expedia_frontend``` code is refactored into two layers for better separation of concerns:
+      - View Layer: Handles user input and output, delegating backend communication to the Manager
+      - Manager Layer: Abstracts the communication with the backend. Two implementations are provided:
+          - REST API Manager: Communicates with the backend using the REST API classes
+          - Local Library API Manager: Directly communicates with the backend using the ```expedia_core_api``` classes and backend objects
+
+Design Notes:
+  - The View now depends on an abstract manager interface, allowing flexibility in using either the REST or local library managers without needing to change the View code
+  - To support this design, a large portion of the code in the Managers layer handles converting Data Transfer Objects (DTOs) to/from different formats:
+      - JSON: used by the REST API Manager
+      - Local Objects: Used by the Local Library API Manager to directly interact with backend objects
+  - In real-world scenarios, such DTO conversions would be essential as the frontend and backend may use different languages and operate independently
+
+Finally for working with JSON, we are using the [SimpleJSON Library](https://github.com/nbsdx/SimpleJSON)
+
 ## Example Usage
 - Start Menu, Signup & Viewing Profile <br>
   ![image](https://github.com/user-attachments/assets/ffad74a9-21b8-42fc-bbac-d0fa115ec104)
@@ -57,9 +75,5 @@ The project idea and requirements are based on Dr. Mostafa Saad's udemy [C++ cou
   ![image](https://github.com/user-attachments/assets/bcde348c-d976-4f2c-8c1e-938030272f90)
 - Listing the User Booked Itineraries <br>
   ![image](https://github.com/user-attachments/assets/353f6da2-39bc-41e2-bd5f-88b4429a5264)
-
-
-## Rest API Support
-Probably the title is a bit catchy :)
 
 ## Final Remarks
