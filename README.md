@@ -77,3 +77,14 @@ Finally for working with JSON, we are using the [SimpleJSON Library](https://git
   ![image](https://github.com/user-attachments/assets/353f6da2-39bc-41e2-bd5f-88b4429a5264)
 
 ## Final Remarks
+As highlighted in the overview, this project primarily focuses on design rather than real functionality. It is highly recommended to review the initial high-level [UML class diagrams](https://github.com/youssef-gerges-ramzy-mokhtar/Expedia-Console-Project/tree/main/design) for the project before diving into the code.
+
+__Some Design Notes:__
+  - Several design patters were used throughout the project, and those are:
+      - __Adapter/Wrapper Pattern:__ This pattern was used a lot in this project mainly to have a single interface for interacting with all the external APIs. For example, a single ```FlightAPI``` target interface was created for use by the Expedia code, with an adapter for each external flight API
+      - __Visitor Pattern:__ Was used only to extend the functionality of the different Reservations available (e.g. Flights & Hotels) without modifying the Reservation classes. Although this pattern requires updates to the visitor interface whenever a new reservation type is added, the assumption was made that the number of reservation types would remain low for a project like Expedia
+      - __Singleton Pattern:__ Used a few times across the project, mainly for classes responsible the API calls
+  - Also, throughout the project I tried using Dependency Inversion as much as possible to have the project as extensible as possible. Examples are:
+      - having a single interface for all Reservation Items
+      - having a single interface for external APIs
+      - having a single interface for the different Managers, to decouple the View from the differnet Manger implementations
